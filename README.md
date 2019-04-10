@@ -15,19 +15,19 @@ java -jar XCodeGenerator-1.0-SNAPSHOT.jar 即可运行
 
 主界面如下
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/1.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/1.jpg" >
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/7.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/7.jpg" >
 
 1 我们先在这个树目录下建好工程模板，代码结构要与实际工程结构路径相同
 
 2 然后点击设置菜单，来设置数据库数据源、环境变量、数据类型映射等
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/2.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/2.jpg" >
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/3.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/3.jpg" >
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/4.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/4.jpg" >
 
 关于环境变量：
 * 环境变量就是模板中用到的全局变量
@@ -35,13 +35,13 @@ java -jar XCodeGenerator-1.0-SNAPSHOT.jar 即可运行
 
 3 点击主界面菜单中的生成按钮，选择需要生成的表，其中类名必填，填完后需要点击保存按钮，然后点下一步。
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/5.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/5.jpg" >
 
 选择需要生成的数据源，勾选相应的表，可以使用模糊查询功能。
 
 4 编辑相关的表字段信息用来生成model
 
-<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/6.png" >
+<img src="https://raw.githubusercontent.com/hyberbin/x-code-generator/master/dist/img/6.jpg" >
 
 fieldName如果不填写则会自动按照表中的字段名驼峰命名
 
