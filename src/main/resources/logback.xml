@@ -1,0 +1,16 @@
+<configuration>
+  <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n"/>
+  <appender name="file" class="ch.qos.logback.core.FileAppender">
+    <file>x-code-generator.log</file>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${LOG_PATTERN}</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="file" />
+  </root>
+</configuration>
