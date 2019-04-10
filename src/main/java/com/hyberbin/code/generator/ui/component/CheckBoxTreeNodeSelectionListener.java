@@ -2,14 +2,26 @@ package com.hyberbin.code.generator.ui.component;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.function.Function;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 public class CheckBoxTreeNodeSelectionListener extends MouseAdapter {
 
+  private Function<MouseEvent, Void> callback;
+
+  public CheckBoxTreeNodeSelectionListener(Function<MouseEvent, Void> function) {
+    this.callback = function;
+  }
+
   @Override
   public void mouseClicked(MouseEvent event) {
+    try {
+      callback.apply(event);
+    }catch (Throwable e){
+
+    }
     JTree tree = (JTree) event.getSource();
     int x = event.getX();
     int y = event.getY();
@@ -21,7 +33,7 @@ public class CheckBoxTreeNodeSelectionListener extends MouseAdapter {
         CheckBoxTreeNode node = (CheckBoxTreeNode) lastPathComponent;
         if (node != null && !node.isRoot()) {
           boolean isSelected = !node.isSelected();
-          node.setSelected(isSelected,true);
+          node.setSelected(isSelected, true);
           ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(node);
         }
       }

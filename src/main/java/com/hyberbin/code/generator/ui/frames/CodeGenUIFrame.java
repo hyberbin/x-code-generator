@@ -18,10 +18,12 @@ import com.hyberbin.code.generator.ui.component.CheckBoxTreeNodeSelectionListene
 import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import java.awt.Toolkit;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import javax.swing.ImageIcon;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -60,13 +62,12 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     javax.swing.tree.DefaultMutableTreeNode treeNode1 = new CheckBoxTreeNode("根目录");
     jTree1.setRowHeight(25);
     jTree1.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-    jTree1.addMouseListener(new CheckBoxTreeNodeSelectionListener());
+    jTree1.addMouseListener(new CheckBoxTreeNodeSelectionListener(mouseEvent -> {
+      jTree1MousePressed(mouseEvent);
+      return null;
+    }));
     jTree1.setCellRenderer(new CheckBoxTreeCellRenderer());
-    jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-      public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-        jTree1ValueChanged(evt);
-      }
-    });
+    jTree1.addTreeSelectionListener(evt -> jTree1ValueChanged(evt));
     jScrollPane1.setViewportView(jTree1);
     jSplitPane1.setLeftComponent(jScrollPane1);
     jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -312,9 +313,6 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
 
 
   private void jTree1MousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_jTree1MousePressed
-    if(e.getButton()==1){
-
-    }
     if (e.getButton() == 3) {
       TreePath path = jTree1.getPathForLocation(e.getX(), e.getY()); // 关键是这个方法的使用
       if (path == null) {  //JTree上没有任何项被选中
