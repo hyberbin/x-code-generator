@@ -76,6 +76,6 @@ public class FileGenerate {
       new File(dir).mkdirs();
     }
     String content = VelocityUtils.evaluate(nodeModel.getTemplate(), vars);
-    FileCopyUtils.copy(content.getBytes(), new FileOutputStream(path));
+    FileCopyUtils.copy(content.getBytes("utf-8"), new FileOutputStream(path));
   }
 }
