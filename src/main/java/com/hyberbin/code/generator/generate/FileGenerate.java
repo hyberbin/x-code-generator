@@ -25,6 +25,7 @@ public class FileGenerate {
   }
 
   public void generate(DataContext context) {
+    varDos=null;
     List<TreeNodeModel> all = context.getTemplates();
     Map<String, TreeNodeModel> idMap = new HashMap();
     Map<String, List<TreeNodeModel>> parentMap = new HashMap();
