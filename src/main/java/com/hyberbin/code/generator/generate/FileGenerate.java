@@ -72,11 +72,12 @@ public class FileGenerate {
     vars.put("classModelMeta", context.getClassModelMeta());
     vars.put("fieldMetas", context.getFieldMetas());
     String path = VelocityUtils.evaluate("${basePath}" + filePath, vars);
-    String dir=path.substring(0,path.lastIndexOf("/")+1);
+    String fileName=path.substring(path.lastIndexOf("/")+1);
+    String dir=path.substring(0,path.lastIndexOf("/")+1).replace(".","/");
     if(!new File(dir).exists()){
       new File(dir).mkdirs();
     }
     String content = VelocityUtils.evaluate(nodeModel.getTemplate(), vars);
-    FileCopyUtils.copy(content.getBytes("utf-8"), new FileOutputStream(path));
+    FileCopyUtils.copy(content.getBytes("utf-8"), new FileOutputStream(dir+fileName));
   }
 }

@@ -110,6 +110,15 @@ public class SqliteDao {
     }
   }
 
+  public <T extends BaseDo> void insertDO(T object) {
+    try {
+      Hyberbin hyberbin = new Hyberbin(object, ConfigFactory.getSimpleManage());
+      hyberbin.insert("");
+    } catch (SQLException e) {
+      logger.error("TreeNodeModel error!", e);
+    }
+  }
+
   @SneakyThrows
   public <T extends BaseDo> List<T> getAll(Class<T> type) {
     Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());

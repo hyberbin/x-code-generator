@@ -8,6 +8,7 @@ package com.hyberbin.code.generator.ui.frames;
 
 import com.google.inject.Inject;
 import com.hyberbin.code.generator.config.CodeGeneratorModule;
+import com.hyberbin.code.generator.dao.IDGenerator;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.Constants;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
@@ -16,6 +17,8 @@ import com.hyberbin.code.generator.ui.component.CheckBoxTreeCellRenderer;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNode;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNodeSelectionListener;
 import com.hyberbin.code.generator.ui.model.PathTreeBind;
+import com.hyberbin.code.generator.utils.CopyContext;
+import com.hyberbin.code.generator.utils.ModelUtils;
 import java.awt.Toolkit;
 
 import java.awt.event.MouseEvent;
@@ -97,6 +100,8 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         addFileMenuItem = new javax.swing.JMenuItem();
         addDirMenuItem1 = new javax.swing.JMenuItem();
         delMenuItem = new javax.swing.JMenuItem();
+        copyMenuItem = new javax.swing.JMenuItem();
+        pasteMenuItem = new javax.swing.JMenuItem();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -134,6 +139,23 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
             }
         });
         treeMenu.add(delMenuItem);
+
+        copyMenuItem.setText("复制节点");
+        copyMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                copyMenuItemActionPerformed(evt);
+            }
+        });
+        treeMenu.add(copyMenuItem);
+
+        pasteMenuItem.setText("粘贴节点");
+        pasteMenuItem.setEnabled(false);
+        pasteMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pasteMenuItemActionPerformed(evt);
+            }
+        });
+        treeMenu.add(pasteMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -363,9 +385,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
 
     private void delMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delMenuItemActionPerformed
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-      PathTreeBind treeBind= (PathTreeBind)node.getUserObject();
-      sqliteDao.deleteOne(TreeNodeModel.class,"id",treeBind.getModel().getId());
-      treeBind.getParent().remove(node);
+      deleteNode(node);
       jTree1.updateUI();
     }//GEN-LAST:event_delMenuItemActionPerformed
 
@@ -404,6 +424,23 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     private void templateTextAreaFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_templateTextAreaFocusLost
         saveButtonActionPerformed(null);
     }//GEN-LAST:event_templateTextAreaFocusLost
+
+    private void copyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyMenuItemActionPerformed
+        DefaultMutableTreeNode source = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        CopyContext.copy(source);
+        pasteMenuItem.setEnabled(true);
+        
+    }//GEN-LAST:event_copyMenuItemActionPerformed
+
+    private void pasteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasteMenuItemActionPerformed
+        DefaultMutableTreeNode dist = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+      DefaultMutableTreeNode paste = CopyContext.paste();
+        pasteMenuItem.setEnabled(false);
+        if(paste!=null){
+            copyNode(paste,dist);
+            jTree1.updateUI();
+        }
+    }//GEN-LAST:event_pasteMenuItemActionPerformed
 
 
   private void addNode(boolean isDir){
@@ -478,10 +515,44 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     }
   }
 
+  private void copyNode(DefaultMutableTreeNode sourceNode,DefaultMutableTreeNode distNode){
+      PathTreeBind bind = (PathTreeBind)sourceNode.getUserObject();
+      TreeNodeModel copy = ModelUtils.copy(bind.getModel());
+      copy.setId(IDGenerator.SNOW_FLAKE_STRING.generate());
+      if(ROOT==distNode){
+          copy.setParentId("0");
+      }else {
+          copy.setParentId((((PathTreeBind)distNode.getUserObject()).getModel().getId()));
+      }
+      CheckBoxTreeNode child = new CheckBoxTreeNode();
+      PathTreeBind pathTreeBind = new PathTreeBind(copy, child);
+      pathTreeBind.setParent(distNode);
+      child.setSelected(false,false);
+      child.setUserObject(pathTreeBind);
+      distNode.add(child);
+      sqliteDao.insertDO(copy);
+      int childCount = sourceNode.getChildCount();
+      for(int i=0;i<childCount;i++){
+          DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)sourceNode.getChildAt(i);
+          copyNode(childNode,child);
+      }
+  }
+
+  private void deleteNode(DefaultMutableTreeNode node){
+      while(node.getChildCount()>0){
+          DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(0);
+          deleteNode(childNode);
+      }
+      PathTreeBind treeBind= (PathTreeBind)node.getUserObject();
+      sqliteDao.deleteOne(TreeNodeModel.class,"id",treeBind.getModel().getId());
+      treeBind.getParent().remove(node);
+  }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addDirMenuItem1;
     private javax.swing.JMenuItem addFileMenuItem;
+    private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem delMenuItem;
     private javax.swing.JTextField fileName;
     private javax.swing.JLabel jLabel1;
@@ -492,6 +563,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JTextField pathName;
     private javax.swing.JButton saveButton;
     private javax.swing.JMenuItem selectTableMenuItem;
