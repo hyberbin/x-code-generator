@@ -1,8 +1,5 @@
 package com.hyberbin.code.generator.ui.component;
 
-import com.hyberbin.code.generator.config.CodeGeneratorModule;
-import com.hyberbin.code.generator.dao.SqliteDao;
-import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class CheckBoxTreeNode extends DefaultMutableTreeNode {
@@ -27,20 +24,15 @@ public class CheckBoxTreeNode extends DefaultMutableTreeNode {
   }
 
 
-  public void setSelected(boolean _isSelected,boolean save) {
+  public void setSelected(boolean _isSelected) {
     this.isSelected = _isSelected;
-    if(save&&userObject instanceof PathTreeBind){
-      PathTreeBind pathTreeBind=(PathTreeBind)userObject;
-      pathTreeBind.setSelected(_isSelected);
-      CodeGeneratorModule.getInstance(SqliteDao.class).saveDO(pathTreeBind.getModel());
-    }
     if (_isSelected) {
       // 如果选中，则将其所有的子结点都选中
       if (children != null) {
         for (Object obj : children) {
           CheckBoxTreeNode node = (CheckBoxTreeNode) obj;
           if (_isSelected != node.isSelected()) {
-            node.setSelected(_isSelected,save);
+            node.setSelected(_isSelected);
           }
         }
       }
@@ -62,7 +54,7 @@ public class CheckBoxTreeNode extends DefaultMutableTreeNode {
          */
         if (index == pNode.children.size()) {
           if (pNode.isSelected() != _isSelected) {
-            pNode.setSelected(_isSelected,save);
+            pNode.setSelected(_isSelected);
           }
         }
       }
@@ -85,7 +77,7 @@ public class CheckBoxTreeNode extends DefaultMutableTreeNode {
           for (int i = 0; i < children.size(); ++i) {
             CheckBoxTreeNode node = (CheckBoxTreeNode) children.get(i);
             if (node.isSelected() != _isSelected) {
-              node.setSelected(_isSelected,save);
+              node.setSelected(_isSelected);
             }
           }
         }
@@ -94,7 +86,7 @@ public class CheckBoxTreeNode extends DefaultMutableTreeNode {
       // 向上取消，只要存在一个子节点不是选上的，那么父节点就不应该被选上。
       CheckBoxTreeNode pNode = (CheckBoxTreeNode) parent;
       if (pNode != null && pNode.isSelected() != _isSelected) {
-        pNode.setSelected(_isSelected,save);
+        pNode.setSelected(_isSelected);
       }
     }
   }

@@ -12,7 +12,6 @@ import com.hyberbin.code.generator.dao.IDGenerator;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.Constants;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
-
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeCellRenderer;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNode;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNodeSelectionListener;
@@ -20,20 +19,17 @@ import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import com.hyberbin.code.generator.utils.CopyContext;
 import com.hyberbin.code.generator.utils.ModelUtils;
 import java.awt.Toolkit;
-
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.swing.ImageIcon;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.slf4j.Logger;
@@ -399,6 +395,12 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       model.setTemplate(templateTextArea.getText());
       if(parent.isRoot()){
         treeBind.setNodePath("");
+        childrenFilter(node,n->{
+            PathTreeBind childTreeBind= (PathTreeBind)n.getUserObject();
+            TreeNodeModel childModel = childTreeBind.getModel();
+            childModel.setProject(pathName.getText());
+            return true;
+        });
       }else {
         treeBind.setNodePath(((PathTreeBind)parent.getUserObject()).getNodePath()+model.getFileName());
       }
@@ -507,9 +509,14 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         CheckBoxTreeNode child = new CheckBoxTreeNode();
         PathTreeBind pathTreeBind = new PathTreeBind(model, child);
         pathTreeBind.setParent(node);
-        child.setSelected(pathTreeBind.getModel().getSelected(),false);
         child.setUserObject(pathTreeBind);
         node.add(child);
+        if(node==ROOT){
+            model.setProject(model.getPathName());
+        }else {
+            PathTreeBind parent=(PathTreeBind)node.getUserObject();
+            model.setProject(parent.getModel().getProject());
+        }
         addNode(child, model.getId(), parentMap);
       }
     }
@@ -527,7 +534,6 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       CheckBoxTreeNode child = new CheckBoxTreeNode();
       PathTreeBind pathTreeBind = new PathTreeBind(copy, child);
       pathTreeBind.setParent(distNode);
-      child.setSelected(false,false);
       child.setUserObject(pathTreeBind);
       distNode.add(child);
       sqliteDao.insertDO(copy);
@@ -537,6 +543,36 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
           copyNode(childNode,child);
       }
   }
+
+    public List<TreeNodeModel> getAllSelectedNodes() {
+        List<TreeNodeModel> list = new ArrayList<>();
+        childrenFilter(ROOT, n -> {
+            PathTreeBind bind = (PathTreeBind) n.getUserObject();
+            CheckBoxTreeNode checkBoxTreeNode = (CheckBoxTreeNode) n;
+            TreeNodeModel model = bind.getModel();
+            if (checkBoxTreeNode.getParent() == ROOT) {
+                model.setProject(model.getPathName());
+            } else {
+                PathTreeBind parent = (PathTreeBind) n.getUserObject();
+                model.setProject(parent.getModel().getProject());
+            }
+            if (checkBoxTreeNode.isSelected()) {
+                list.add(model);
+            }
+            return checkBoxTreeNode.isSelected();
+        });
+        return list;
+    }
+
+    private void childrenFilter(DefaultMutableTreeNode node,
+            Predicate<DefaultMutableTreeNode> filter) {
+        for (int i = 0; i < node.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+            if (filter.test(child)) {
+                childrenFilter(child, filter);
+            }
+        }
+    }
 
   private void deleteNode(DefaultMutableTreeNode node){
       while(node.getChildCount()>0){

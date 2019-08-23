@@ -38,7 +38,7 @@ public class SqliteDao {
               + ",pathName text"
               + ",fileName text"
               + ",parentId text"
-              + ",selected integer"
+              + ",project text"
               + ",template text);");
     }
     if (!SqliteUtil.tableExist("DataSource")) {
@@ -79,10 +79,10 @@ public class SqliteDao {
       SqliteUtil.execute(
           "create table VarDo("
               + "id text PRIMARY KEY"
+              + ",project text"
               + ",key text"
               + ",value text"
               + ",note text"
-              + ",canDel integer"
               + ");");
     }
     if (!SqliteUtil.tableExist("DataTypeDo")) {

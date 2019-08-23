@@ -415,11 +415,9 @@ public class ConfigFrame extends javax.swing.JFrame {
       java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delButtonActionPerformed
     int selectedRow = varTable.getSelectedRow();
     VarDo varDo = getVarModel().getDatas().get(selectedRow);
-    if (varDo.getCanDel()==null||varDo.getCanDel()) {
       getVarModel().removeRow(selectedRow);
       getVarModel().getDatas().remove(selectedRow);
       sqliteDao.deleteOne(VarDo.class,"key",varDo.getKey());
-    }
   }//GEN-LAST:event_delButtonActionPerformed
 
   private void saveButtonActionPerformed(

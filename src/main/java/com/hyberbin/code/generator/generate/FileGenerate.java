@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.jplus.util.FileCopyUtils;
 
 public class FileGenerate {
@@ -59,16 +61,20 @@ public class FileGenerate {
 
   @SneakyThrows
   private void generate(String filePath, DataContext context, TreeNodeModel nodeModel) {
-    if(!nodeModel.getSelected()){
-      return;
-    }
     HashMap vars = new HashMap();
     if(varDos==null){
       varDos = sqliteDao.getAll(VarDo.class);
     }
-    for (VarDo varDo : varDos) {
-      vars.put(varDo.getKey(), varDo.getValue());
-    }
+    varDos.forEach(v->{
+      if(StringUtils.isEmpty(v.getProject())|| Objects.equals("global",v.getProject())){
+        vars.put(v.getKey(), v.getValue());
+      }
+    });
+    varDos.forEach(v->{
+      if(Objects.equals(nodeModel.getProject(),v.getProject())){
+        vars.put(v.getKey(), v.getValue());
+      }
+    });
     vars.put("classModelMeta", context.getClassModelMeta());
     vars.put("fieldMetas", context.getFieldMetas());
     String path = VelocityUtils.evaluate("${basePath}" + filePath, vars);

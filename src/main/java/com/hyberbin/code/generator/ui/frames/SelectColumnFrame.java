@@ -14,7 +14,6 @@ import com.hyberbin.code.generator.generate.FileGenerate;
 import com.hyberbin.code.generator.domains.ClassModelMeta;
 import com.hyberbin.code.generator.domains.ColumnMeta;
 import com.hyberbin.code.generator.domains.FieldMeta;
-import com.hyberbin.code.generator.domains.TreeNodeModel;
 import com.hyberbin.code.generator.ui.model.SelectColumnModel;
 import com.hyberbin.code.generator.utils.StringUtils;
 import com.hyberbin.code.generator.vo.FieldMetaVo;
@@ -216,7 +215,8 @@ public class SelectColumnFrame extends javax.swing.JFrame {
       DataContext dataContext=new DataContext();
       ClassModelMeta classModelMeta =datas.get(index);
       dataContext.setClassModelMeta(classModelMeta);
-      dataContext.setTemplates(sqliteDao.getAll(TreeNodeModel.class));
+        CodeGenUIFrame codeGenUIFrame = CodeGeneratorModule.getInstance(CodeGenUIFrame.class);
+        dataContext.setTemplates(codeGenUIFrame.getAllSelectedNodes());
       List<FieldMeta> datas = getTableModel().getDatas();
       List<FieldMetaVo> fieldMetaVos=new ArrayList<>(datas.size());
       Map<String, DataTypeDo> dataTypeMapping = ConfigFactory.getDataTypeMapping();

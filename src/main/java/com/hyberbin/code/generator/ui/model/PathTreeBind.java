@@ -22,9 +22,6 @@ public class PathTreeBind {
     return model;
   }
 
-  public void setSelected(boolean selected) {
-    model.setSelected(selected);
-  }
 
   @Override
   public String toString() {

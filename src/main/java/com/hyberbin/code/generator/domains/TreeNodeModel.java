@@ -19,5 +19,5 @@ public class TreeNodeModel extends BaseDo{
   private String fileName;
   private String template;
   private String parentId;
-  private Boolean selected;
+  private String project;
 }
