@@ -219,10 +219,10 @@ public class SelectColumnFrame extends javax.swing.JFrame {
       dataContext.setTemplates(sqliteDao.getAll(TreeNodeModel.class));
       List<FieldMeta> datas = getTableModel().getDatas();
       List<FieldMetaVo> fieldMetaVos=new ArrayList<>(datas.size());
-      Map<String, DataTypeDo> dataTypeMaping = ConfigFactory.getDataTypeMaping();
+      Map<String, DataTypeDo> dataTypeMapping = ConfigFactory.getDataTypeMapping();
       for(FieldMeta fieldMeta:datas){
         FieldMetaVo fieldMetaVo = new FieldMetaVo(fieldMeta);
-        DataTypeDo dataTypeDo =dataTypeMaping.get(fieldMeta.getDataType());
+        DataTypeDo dataTypeDo =dataTypeMapping.get(fieldMeta.getDataType());
         if(dataTypeDo==null){
           DataTypeDo dataType=new DataTypeDo();
           dataType.setDbType(fieldMeta.getDataType());

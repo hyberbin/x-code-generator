@@ -86,6 +86,35 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <!-- 在default生命周期的 validate阶段就执行resources插件的copy-resources目标 -->
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <!-- 指定resources插件处理资源文件到哪个目录下 -->
+              <outputDirectory>target/config</outputDirectory>
+              <!-- 待处理的资源定义 -->
+              <resources>
+                <resource>
+                  <!-- 指定resources插件处理哪个目录下的资源文件 -->
+                  <directory>src/main/resources/config/</directory>
+                  <includes>
+                    <include>*.properties</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
@@ -104,8 +133,12 @@
               <classpathPrefix>lib/</classpathPrefix>
               <mainClass>com.hyberbin.code.generator.Main</mainClass>
             </manifest>
+            <manifestEntries>
+              <Class-Path>./</Class-Path>
+            </manifestEntries>
           </archive>
           <excludes>
+            <exclude>config/**</exclude>
           </excludes>
         </configuration>
       </plugin>
