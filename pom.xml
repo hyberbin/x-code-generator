@@ -98,7 +98,7 @@
             </goals>
             <configuration>
               <!-- 指定resources插件处理资源文件到哪个目录下 -->
-              <outputDirectory>target/config</outputDirectory>
+              <outputDirectory>dist/config</outputDirectory>
               <!-- 待处理的资源定义 -->
               <resources>
                 <resource>
@@ -127,6 +127,9 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
+          <outputDirectory>
+            ${basedir}/dist
+          </outputDirectory>
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
@@ -156,7 +159,7 @@
             <configuration>
               <excludeScope>provided</excludeScope>
               <outputDirectory>
-                ${project.build.directory}/lib
+                ${basedir}/dist/lib
               </outputDirectory>
             </configuration>
           </execution>
