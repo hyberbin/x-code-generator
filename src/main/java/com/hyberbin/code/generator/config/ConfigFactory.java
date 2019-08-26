@@ -4,14 +4,19 @@ package com.hyberbin.code.generator.config;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.DataTypeDo;
 import com.hyberbin.code.generator.utils.StringUtils;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.jplus.hyb.database.config.DbConfig;
 import org.jplus.hyb.database.config.SimpleConfigurator;
+import org.jplus.hyb.database.sqlite.SqliteUtil;
 import org.jplus.hyb.database.transaction.IDbManager;
 import org.jplus.hyb.database.transaction.SimpleManager;
 @Slf4j
@@ -26,8 +31,33 @@ public class ConfigFactory {
         try (InputStream is=ConfigFactory.class.getResourceAsStream("/config/datasource.properties")){
             properties.load(is);
         }catch (Throwable e){
-            log.info("读取配置文件出错，请检查/config/datasource.properties");
-            return defaultConfig;
+            String configPath = SqliteUtil.getProperty("configPath");
+            if(StringUtils.isBlank(configPath)){
+                JFileChooser fileChooser=new JFileChooser();
+                fileChooser.setCurrentDirectory(new File("./"));
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fileChooser.addChoosableFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.getName().endsWith(".properties");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "请选择一个properties文件";
+                    }
+                });
+                fileChooser.showDialog(null,"请选择一个properties文件");
+                File selectedFile = fileChooser.getSelectedFile();
+                configPath=selectedFile.getPath();
+                SqliteUtil.setProperty("configPath",configPath);
+            }
+            try (InputStream is=new FileInputStream(configPath)){
+                properties.load(is);
+            }catch (Throwable t){
+                log.info("读取配置文件出错，请检查/config/datasource.properties");
+                return defaultConfig;
+            }
         }
         String names=properties.getProperty("datasource.names");
         String active=properties.getProperty("datasource.active");
