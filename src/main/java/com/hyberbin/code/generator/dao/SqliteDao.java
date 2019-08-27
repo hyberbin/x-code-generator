@@ -7,7 +7,9 @@ import com.hyberbin.code.generator.domains.ColumnMeta;
 import com.hyberbin.code.generator.domains.TableMeta;
 import com.hyberbin.code.generator.utils.StringUtils;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.jplus.hyb.database.bean.ParmeterPair;
 import org.jplus.hyb.database.config.ConfigCenter;
@@ -129,7 +131,7 @@ public class SqliteDao {
     try {
       Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
       return (T) hyberbin
-          .showOne("select * from " + type.getSimpleName() + " where " + filed + "=?", value);
+          .showOne("select * from " + type.getSimpleName() + " where `" + filed + "`=?", value);
     } catch (Throwable e) {
       logger.error("getChild error!", e);
     }
@@ -140,7 +142,7 @@ public class SqliteDao {
     try {
       Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
       return hyberbin
-          .delete(" where " + filed + "='"+value+"'");
+          .delete(" where `" + filed + "`='"+value+"'");
     } catch (Throwable e) {
       logger.error("getChild error!", e);
     }
@@ -151,7 +153,7 @@ public class SqliteDao {
     try {
       Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
       return hyberbin
-          .showList("select * from " + type.getSimpleName() + " where " + filed + "=?", value);
+          .showList("select * from " + type.getSimpleName() + " where `" + filed + "`=?", value);
     } catch (Throwable e) {
       logger.error("getChild error!", e);
     }
@@ -201,7 +203,8 @@ public class SqliteDao {
 
     @Override
     public void sqlout(String sql, List<ParmeterPair> parmeters) {
-      logger.info(sql.replaceAll("[?]","{}"),parmeters.toArray());
+      List<String> params=parmeters.stream().map(o->o.getParmeter()+"").collect(Collectors.toList());
+      logger.info(sql.replaceAll("[?]","{}"),params.toArray());
     }
 
     @Override
