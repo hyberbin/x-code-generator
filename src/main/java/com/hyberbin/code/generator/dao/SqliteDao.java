@@ -203,7 +203,7 @@ public class SqliteDao {
 
     @Override
     public void sqlout(String sql, List<ParmeterPair> parmeters) {
-      List<String> params=parmeters.stream().map(o->o.getParmeter()+"").collect(Collectors.toList());
+      List<String> params=parmeters.stream().map(o->"'"+o.getParmeter()+"'").collect(Collectors.toList());
       logger.info(sql.replaceAll("[?]","{}"),params.toArray());
     }
 
