@@ -12,4 +12,5 @@ public class DataContext {
   private ClassModelMeta classModelMeta;
   private List<? extends FieldMeta> fieldMetas;
   private List<TreeNodeModel> templates;
+  private String selectedEnv;
 }

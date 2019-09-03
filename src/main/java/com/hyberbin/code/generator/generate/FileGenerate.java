@@ -75,6 +75,11 @@ public class FileGenerate {
         vars.put(v.getKey(), v.getValue());
       }
     });
+    varDos.forEach(v->{
+      if(Objects.equals(context.getSelectedEnv(),v.getProject())){
+        vars.put(v.getKey(), v.getValue());
+      }
+    });
     vars.put("classModelMeta", context.getClassModelMeta());
     vars.put("fieldMetas", context.getFieldMetas());
     String path = VelocityUtils.evaluate("${basePath}" + filePath, vars);

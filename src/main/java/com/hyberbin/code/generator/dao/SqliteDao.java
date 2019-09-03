@@ -9,6 +9,7 @@ import com.hyberbin.code.generator.utils.StringUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.jplus.hyb.database.bean.ParmeterPair;
@@ -190,6 +191,14 @@ public class SqliteDao {
         + "table_comment comment"
         + " from information_schema.tables "
         + " where  table_schema=database() and table_name like ?","%"+tableName+"%");
+  }
+
+  @SneakyThrows
+  public List<String> getProjects(){
+    IDbManager simpleManage = ConfigFactory.getSimpleManage();
+    Hyberbin hyberbin=new Hyberbin(new TableMeta(),simpleManage);
+    List<Map> list = hyberbin.getMapList("select DISTINCT project from VarDo");
+    return list.stream().map(m->(String)m.get("project")).collect(Collectors.toList());
   }
 
   @SneakyThrows
