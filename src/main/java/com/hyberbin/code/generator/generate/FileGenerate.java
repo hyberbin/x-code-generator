@@ -1,5 +1,6 @@
 package com.hyberbin.code.generator.generate;
 
+import com.alibaba.fastjson.JSON;
 import com.google.inject.Inject;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
@@ -13,9 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jplus.util.FileCopyUtils;
-
+@Slf4j
 public class FileGenerate {
 
   private SqliteDao sqliteDao;
@@ -87,8 +89,11 @@ public class FileGenerate {
     String dir=path.substring(0,path.lastIndexOf("/")+1).replace(".","/");
     if(!new File(dir).exists()){
       new File(dir).mkdirs();
+      log.info("新建文件夹:{}",dir);
     }
+    log.info("当前环境变量:{}", JSON.toJSONString(vars));
     String content = VelocityUtils.evaluate(nodeModel.getTemplate(), vars);
+    log.info("生成文件:{}",dir+fileName);
     FileCopyUtils.copy(content.getBytes("utf-8"), new FileOutputStream(dir+fileName));
   }
 }

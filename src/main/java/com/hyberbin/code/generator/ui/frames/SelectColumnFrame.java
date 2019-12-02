@@ -24,11 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
+import lombok.extern.slf4j.Slf4j;
 import org.jplus.hyb.database.sqlite.SqliteUtil;
 
 /**
  * @author Administrator
  */
+@Slf4j
 public class SelectColumnFrame extends javax.swing.JFrame {
 
     private SqliteDao sqliteDao;
@@ -257,6 +259,7 @@ public class SelectColumnFrame extends javax.swing.JFrame {
             java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genButtonActionPerformed
         DataContext dataContext = new DataContext();
         ClassModelMeta classModelMeta = datas.get(index);
+        log.info("准备生成表{}对应的文件",classModelMeta.getTableName());
         dataContext.setClassModelMeta(classModelMeta);
         CodeGenUIFrame codeGenUIFrame = CodeGeneratorModule.getInstance(CodeGenUIFrame.class);
         dataContext.setTemplates(codeGenUIFrame.getAllSelectedNodes());
