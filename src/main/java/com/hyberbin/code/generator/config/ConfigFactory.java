@@ -13,14 +13,16 @@ import java.util.Map;
 import java.util.Properties;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-import lombok.extern.slf4j.Slf4j;
 import org.jplus.hyb.database.config.DbConfig;
 import org.jplus.hyb.database.config.SimpleConfigurator;
 import org.jplus.hyb.database.sqlite.SqliteUtil;
 import org.jplus.hyb.database.transaction.IDbManager;
 import org.jplus.hyb.database.transaction.SimpleManager;
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConfigFactory {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigFactory.class);
 
 
     private static DbConfig DEFAULT_CONFIG = loadConfig();
@@ -55,14 +57,14 @@ public class ConfigFactory {
             try (InputStream is=new FileInputStream(configPath)){
                 properties.load(is);
             }catch (Throwable t){
-                log.info("读取配置文件出错，请检查/config/datasource.properties");
+                logger.info("读取配置文件出错，请检查/config/datasource.properties");
                 return defaultConfig;
             }
         }
         String names=properties.getProperty("datasource.names");
         String active=properties.getProperty("datasource.active");
         if(StringUtils.isBlank(names)||StringUtils.isBlank(active)){
-            log.error("请检查配置文件中datasource.names和datasource.active");
+            logger.error("请检查配置文件中datasource.names和datasource.active");
             return defaultConfig;
         }
         String username=properties.getProperty(String.join(".","datasource",active,"username"));
@@ -94,5 +96,17 @@ public class ConfigFactory {
             map.put(typeModel.getDbType(), typeModel);
         }
         return map;
+    }
+
+    public static String getCurrentVersion(){
+        Properties properties=new Properties();
+        try (InputStream is=ConfigFactory.class.getResourceAsStream("/version/version.properties")){
+            properties.load(is);
+            String version = properties.getProperty("version");
+            logger.info("当前版本:{}",version);
+            return version;
+        }catch (Throwable e){
+            return null;
+        }
     }
 }

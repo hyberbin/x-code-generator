@@ -14,7 +14,9 @@ import org.jplus.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class FileGenerate {
@@ -62,6 +64,11 @@ public class FileGenerate {
         vars.put("classModelMeta", context.getClassModelMeta());
         vars.put("fieldMetas", context.getFieldMetas());
         String path = VelocityUtils.evaluate("${basePath}" + filePath, vars);
+        //文件路径src后如果带有-需要把-替换成/
+        String[] srcs = path.split("src");
+        if (srcs.length == 2) {
+            path = srcs[0] + "src" + srcs[1].replace("-", "/");
+        }
         String dir =path.substring(0, path.lastIndexOf("/") + 1).replace(".", "/");
         if (!new File(dir).exists()) {
             new File(dir).mkdirs();

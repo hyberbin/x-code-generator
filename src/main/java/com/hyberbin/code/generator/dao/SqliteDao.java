@@ -97,6 +97,15 @@ public class SqliteDao {
               + ",jdbcType text"
               + ");");
     }
+    if (!SqliteUtil.tableExist("VersionDo")) {
+      SqliteUtil.execute(
+              "create table VersionDo("
+                      + "id text PRIMARY KEY"
+                      + ",version text"
+                      + ",httpPath text"
+                      + ",localPath text"
+                      + ");");
+    }
   }
 
   public <T extends BaseDo> void saveDO(T object) {

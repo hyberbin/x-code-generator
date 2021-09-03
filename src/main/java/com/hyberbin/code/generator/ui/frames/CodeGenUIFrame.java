@@ -8,16 +8,20 @@ package com.hyberbin.code.generator.ui.frames;
 
 import com.google.inject.Inject;
 import com.hyberbin.code.generator.config.CodeGeneratorModule;
+import com.hyberbin.code.generator.config.ConfigFactory;
 import com.hyberbin.code.generator.dao.IDGenerator;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.Constants;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
+import com.hyberbin.code.generator.domains.VersionDo;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeCellRenderer;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNode;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNodeSelectionListener;
 import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import com.hyberbin.code.generator.utils.CopyContext;
+import com.hyberbin.code.generator.utils.DownloadUtils;
 import com.hyberbin.code.generator.utils.ModelUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.slf4j.Logger;
@@ -29,10 +33,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -78,6 +80,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     fileName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     templateTextArea.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     loadAllTemplate();
+      checkUpdate();
   }
 
   private RSyntaxTextArea getRSyntaxTextArea(JTextArea textArea) {
@@ -578,6 +581,27 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       treeBind.getParent().remove(node);
   }
 
+
+  private void checkUpdate(){
+      List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
+      if(CollectionUtils.isNotEmpty(versionDos)){
+          if(!Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion())){
+              int option = JOptionPane.showConfirmDialog(this, "有新的版本，是不更新?");
+              if(Objects.equals(JOptionPane.YES_OPTION,option)){
+                  try {
+                      for(VersionDo versionDo:versionDos){
+                          DownloadUtils.main(new String[]{versionDo.getHttpPath(),versionDo.getLocalPath()});
+                      }
+                      Runtime.getRuntime().exec("java -jar XCodeGenerator-1.0-SNAPSHOT.jar");
+                      System.exit(0);
+                  }catch (Throwable e){
+                      logger.info("更新出错",e);
+                      JOptionPane.showMessageDialog(this,"更新出错","错误",JOptionPane.ERROR_MESSAGE);
+                  }
+              }
+          }
+      }
+  }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addDirMenuItem1;
