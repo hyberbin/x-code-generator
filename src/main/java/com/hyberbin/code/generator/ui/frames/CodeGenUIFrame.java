@@ -273,6 +273,11 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         jMenuBar1.add(jMenu3);
 
         jMenu1.setText("更新");
+        jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jMenu1MousePressed(evt);
+            }
+        });
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu1ActionPerformed(evt);
@@ -457,6 +462,10 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         checkUpdate();
     }//GEN-LAST:event_jMenu1ActionPerformed
 
+    private void jMenu1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MousePressed
+         checkUpdate();
+    }//GEN-LAST:event_jMenu1MousePressed
+
 
   private void addNode(boolean isDir){
     DefaultMutableTreeNode parent = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
@@ -599,7 +608,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
       if(CollectionUtils.isNotEmpty(versionDos)){
           if(!Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion())){
-              int option = JOptionPane.showConfirmDialog(this, "有新的版本，是不更新?");
+              int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?");
               if(Objects.equals(JOptionPane.YES_OPTION,option)){
                   try {
                       for(VersionDo versionDo:versionDos){
