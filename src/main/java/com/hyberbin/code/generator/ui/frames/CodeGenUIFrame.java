@@ -33,8 +33,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -80,7 +80,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     fileName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     templateTextArea.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     loadAllTemplate();
-      checkUpdate();
+      checkUpdate(true);
   }
 
   private RSyntaxTextArea getRSyntaxTextArea(JTextArea textArea) {
@@ -459,11 +459,11 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_pasteMenuItemActionPerformed
 
     private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
-        checkUpdate();
+        checkUpdate(false);
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void jMenu1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MousePressed
-         checkUpdate();
+         checkUpdate(false);
     }//GEN-LAST:event_jMenu1MousePressed
 
 
@@ -603,29 +603,33 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       treeBind.getParent().remove(node);
   }
 
-
-  private void checkUpdate(){
-      List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
-      if(CollectionUtils.isNotEmpty(versionDos)){
-          if(!Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion())){
-              int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?");
-              if(Objects.equals(JOptionPane.YES_OPTION,option)){
-                  try {
-                      for(VersionDo versionDo:versionDos){
-                          DownloadUtils.main(new String[]{versionDo.getHttpPath(),versionDo.getLocalPath()});
-                      }
-                      Runtime.getRuntime().exec("java -jar XCodeGenerator-1.0-SNAPSHOT.jar");
-                      System.exit(0);
-                  }catch (Throwable e){
-                      logger.info("更新出错",e);
-                      JOptionPane.showMessageDialog(this,"更新出错","错误",JOptionPane.ERROR_MESSAGE);
-                  }
-              }
-          }
-      }else {
-          JOptionPane.showMessageDialog(this,"当前已经是最新版本","提示",JOptionPane.INFORMATION_MESSAGE);
-      }
-  }
+    /**
+     * 检查更新
+     * @param auto 是否自动触发
+     */
+    private void checkUpdate(boolean auto) {
+        List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
+        boolean update = CollectionUtils.isNotEmpty(versionDos) && !Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion());
+        if (!update) {
+            if (!auto) {
+                JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
+            }
+            return;
+        }
+        int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?");
+        if (Objects.equals(JOptionPane.YES_OPTION, option)) {
+            try {
+                for (VersionDo versionDo : versionDos) {
+                    DownloadUtils.main(new String[]{versionDo.getHttpPath(), versionDo.getLocalPath()});
+                }
+                Runtime.getRuntime().exec("java -jar XCodeGenerator-1.0-SNAPSHOT.jar");
+                System.exit(0);
+            } catch (Throwable e) {
+                logger.info("更新出错", e);
+                JOptionPane.showMessageDialog(this, "更新出错", "错误", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addDirMenuItem1;
