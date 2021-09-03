@@ -114,6 +114,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         jMenu3 = new javax.swing.JMenu();
         selectTableMenuItem = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
 
         addFileMenuItem.setText("添加文件");
         addFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -270,6 +271,14 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         jMenu3.add(selectTableMenuItem);
 
         jMenuBar1.add(jMenu3);
+
+        jMenu1.setText("更新");
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
@@ -444,6 +453,10 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_pasteMenuItemActionPerformed
 
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+        checkUpdate();
+    }//GEN-LAST:event_jMenu1ActionPerformed
+
 
   private void addNode(boolean isDir){
     DefaultMutableTreeNode parent = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
@@ -600,6 +613,8 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
                   }
               }
           }
+      }else {
+          JOptionPane.showMessageDialog(this,"当前已经是最新版本","提示",JOptionPane.INFORMATION_MESSAGE);
       }
   }
 
@@ -611,6 +626,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     private javax.swing.JTextField fileName;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
