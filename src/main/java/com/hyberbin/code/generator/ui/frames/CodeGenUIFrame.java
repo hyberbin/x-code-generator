@@ -35,6 +35,9 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 
 /**
@@ -608,26 +611,37 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
      * @param auto 是否自动触发
      */
     private void checkUpdate(boolean auto) {
-        List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
-        boolean update = CollectionUtils.isNotEmpty(versionDos) && !Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion());
-        if (!update) {
-            if (!auto) {
-                JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
-            }
-            return;
-        }
-        int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?");
-        if (Objects.equals(JOptionPane.YES_OPTION, option)) {
-            try {
-                for (VersionDo versionDo : versionDos) {
-                    DownloadUtils.main(new String[]{versionDo.getHttpPath(), versionDo.getLocalPath()});
+        FutureTask task = new FutureTask(() -> {
+            List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
+            boolean update = CollectionUtils.isNotEmpty(versionDos) && !Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion());
+            if (!update) {
+                if (!auto) {
+                    JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
                 }
-                Runtime.getRuntime().exec("java -jar XCodeGenerator-1.0-SNAPSHOT.jar");
-                System.exit(0);
-            } catch (Throwable e) {
-                logger.info("更新出错", e);
-                JOptionPane.showMessageDialog(this, "更新出错", "错误", JOptionPane.ERROR_MESSAGE);
+                return null;
             }
+            int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?");
+            if (Objects.equals(JOptionPane.YES_OPTION, option)) {
+                try {
+                    for (VersionDo versionDo : versionDos) {
+                        DownloadUtils.main(new String[]{versionDo.getHttpPath(), versionDo.getLocalPath()});
+                    }
+                    Runtime.getRuntime().exec("java -jar XCodeGenerator-1.0-SNAPSHOT.jar");
+                    System.exit(0);
+                } catch (Throwable e) {
+                    logger.info("更新出错", e);
+                    JOptionPane.showMessageDialog(this, "更新出错\n\r" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            return null;
+        });
+        new Thread(task).start();
+        try {
+            task.get(10, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            logger.info("更新超时");
+        } catch (Throwable e) {
+            logger.info("更新出错", e);
         }
     }
 
