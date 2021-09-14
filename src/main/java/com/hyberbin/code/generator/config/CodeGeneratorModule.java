@@ -11,6 +11,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+import com.hyberbin.code.generator.ui.frames.ConfigFrame;
 import com.hyberbin.code.generator.ui.frames.SelectTableFrame;
 
 public class CodeGeneratorModule extends AbstractModule {
@@ -23,9 +24,7 @@ public class CodeGeneratorModule extends AbstractModule {
     bind(CodeGenUIFrame.class).in(Scopes.SINGLETON);
     bind(SelectTableFrame.class).in(Scopes.SINGLETON);
     bind(FileGenerate.class).in(Scopes.SINGLETON);
-//    bind(ConfigFrame.class).in(Scopes.SINGLETON);
-//    bindInterceptor(Matchers.subclassesOf(ApiRunner.class), Matchers.any(),
-//        new ApiRunMethodInvocation());
+    bind(ConfigFrame.class).in(Scopes.SINGLETON);
   }
 
   private void bindSingleton(Class type, String name, Class impl) {

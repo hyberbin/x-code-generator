@@ -516,6 +516,7 @@ public class ConfigFrame extends javax.swing.JFrame {
         List<PathTreeBind> allSelectedNodes = codeGenUIFrame.getAllProjectNodes();
         for(PathTreeBind model:allSelectedNodes){
             if(Objects.equals(2,model.getModel().getType())&&model.getModel().getFileName().endsWith("java")){
+                templateVars.addAll(StringUtils.getAllVars(model.getNodePath()));
                 templateVars.addAll(StringUtils.getAllVars(model.getModel().getTemplate()));
             }
         }
