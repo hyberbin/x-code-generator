@@ -14,6 +14,7 @@ import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.Constants;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
 import com.hyberbin.code.generator.domains.VersionDo;
+import com.hyberbin.code.generator.log.FrameAppender;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeCellRenderer;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNode;
 import com.hyberbin.code.generator.ui.component.CheckBoxTreeNodeSelectionListener;
@@ -82,7 +83,9 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     pathName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     fileName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     templateTextArea.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+      FrameAppender.setLog((RSyntaxTextArea)jTextArea1);
     loadAllTemplate();
+    setVisible(true);
       checkUpdate(true);
   }
 
@@ -104,6 +107,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         delMenuItem = new javax.swing.JMenuItem();
         copyMenuItem = new javax.swing.JMenuItem();
         pasteMenuItem = new javax.swing.JMenuItem();
+        jSplitPane2 = new javax.swing.JSplitPane();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -113,6 +117,10 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         templateTextArea = new org.fife.ui.rsyntaxtextarea.RSyntaxTextArea();
         saveButton = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea1 = new org.fife.ui.rsyntaxtextarea.RSyntaxTextArea();
+        jTextPane1 = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenu3 = new javax.swing.JMenu();
@@ -161,6 +169,9 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         treeMenu.add(pasteMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jSplitPane2.setDividerLocation(400);
+        jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         jSplitPane1.setDividerLocation(150);
         jSplitPane1.setDividerSize(3);
@@ -215,7 +226,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addComponent(fileName, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+                        .addComponent(fileName, javax.swing.GroupLayout.DEFAULT_SIZE, 824, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(saveButton, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -233,10 +244,25 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
                     .addComponent(fileName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(saveButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel2);
+
+        jSplitPane2.setLeftComponent(jSplitPane1);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane3.setViewportView(jTextArea1);
+
+        jTabbedPane1.addTab("日志", jScrollPane3);
+
+        jSplitPane2.setRightComponent(jTabbedPane1);
+
+        jTextPane1.setEditable(false);
+        jTextPane1.setText("这里是提示消息");
+        jTextPane1.setEnabled(false);
+        jTextPane1.setFocusable(false);
 
         jMenu2.setText("设置");
         jMenu2.setToolTipText("设置");
@@ -294,14 +320,19 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jSplitPane2, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(jTextPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1155, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(jSplitPane1)
-                .addGap(0, 0, 0))
+                .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+                .addGap(26, 26, 26))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(581, Short.MAX_VALUE)
+                    .addComponent(jTextPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         pack();
@@ -498,6 +529,20 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
   }
 
 
+    public DefaultMutableTreeNode getSelectedProject() {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        if (node == null) {
+            JOptionPane.showMessageDialog(this, "当前没有打开的项目", "提示", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        while (node.getParent() != ROOT) {
+            node = (DefaultMutableTreeNode) node.getParent();
+        }
+        return node;
+    }
+    /**
+     * 加载所有模板文件
+     */
   private void loadAllTemplate() {
     List<TreeNodeModel> all = sqliteDao.getAll(TreeNodeModel.class);
     Map<String,TreeNodeModel> idMap=new HashMap();
@@ -525,6 +570,12 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     addNode(ROOT,"0",parentMap);
   }
 
+    /**
+     * 添加一个节点
+     * @param node
+     * @param nodeId
+     * @param parentMap
+     */
   private void addNode(DefaultMutableTreeNode node, String nodeId,
       Map<String, List<TreeNodeModel>> parentMap) {
     List<TreeNodeModel> treeNodeModels = parentMap.get(nodeId);
@@ -545,6 +596,11 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     }
   }
 
+    /**
+     * 复制模板或者文件夹
+     * @param sourceNode
+     * @param distNode
+     */
   private void copyNode(DefaultMutableTreeNode sourceNode,DefaultMutableTreeNode distNode){
       PathTreeBind bind = (PathTreeBind)sourceNode.getUserObject();
       TreeNodeModel copy = ModelUtils.copy(bind.getModel());
@@ -566,6 +622,10 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       }
   }
 
+    /**
+     * 获取所有选中的模板节点
+     * @return
+     */
     public List<PathTreeBind> getAllSelectedNodes() {
         List<PathTreeBind> list = new ArrayList<>();
         childrenFilter(ROOT, n -> {
@@ -586,6 +646,34 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         return list;
     }
 
+    /**
+     * 获取当前项目中所有节点
+     * @return
+     */
+    public List<PathTreeBind> getAllProjectNodes() {
+        DefaultMutableTreeNode node = getSelectedProject();
+        if(node==null){
+            return null;
+        }
+        List<PathTreeBind> list = new ArrayList<>();
+        childrenFilter(node, n -> {
+            PathTreeBind bind = (PathTreeBind) n.getUserObject();
+            CheckBoxTreeNode checkBoxTreeNode = (CheckBoxTreeNode) n;
+            TreeNodeModel model = bind.getModel();
+            if (checkBoxTreeNode.getParent() == ROOT) {
+                model.setProject(model.getPathName());
+            } else {
+                PathTreeBind parent = (PathTreeBind) n.getUserObject();
+                model.setProject(parent.getModel().getProject());
+            }
+            list.add(bind);
+            return true;
+        });
+        return list;
+    }
+
+
+
     private void childrenFilter(DefaultMutableTreeNode node,
             Predicate<DefaultMutableTreeNode> filter) {
         for (int i = 0; i < node.getChildCount(); i++) {
@@ -596,6 +684,10 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * 删除模板文件或者文件夹
+     * @param node
+     */
   private void deleteNode(DefaultMutableTreeNode node){
       while(node.getChildCount()>0){
           DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(0);
@@ -611,16 +703,16 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
      * @param auto 是否自动触发
      */
     private void checkUpdate(boolean auto) {
-        FutureTask task = new FutureTask(() -> {
-            List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
-            boolean update = CollectionUtils.isNotEmpty(versionDos) && !Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion());
-            if (!update) {
-                if (!auto) {
-                    JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
-                }
-                return null;
+        List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
+        boolean update = CollectionUtils.isNotEmpty(versionDos) && !Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion());
+        if (!update) {
+            if (!auto) {
+                JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
             }
-            int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?");
+            return;
+        }
+        int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?", "更新提示", JOptionPane.YES_NO_OPTION);
+        FutureTask task = new FutureTask(() -> {
             if (Objects.equals(JOptionPane.YES_OPTION, option)) {
                 try {
                     for (VersionDo versionDo : versionDos) {
@@ -630,7 +722,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
                     System.exit(0);
                 } catch (Throwable e) {
                     logger.info("更新出错", e);
-                    JOptionPane.showMessageDialog(this, "更新出错\n\r" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "更新出错\n\r" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
             return null;
@@ -659,7 +751,12 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane2;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JTextField pathName;
     private javax.swing.JButton saveButton;

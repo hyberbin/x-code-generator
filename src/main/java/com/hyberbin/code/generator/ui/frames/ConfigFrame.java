@@ -6,21 +6,31 @@
 package com.hyberbin.code.generator.ui.frames;
 
 
+import com.hyberbin.code.generator.config.ConfigFactory;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.google.inject.Inject;
 import com.hyberbin.code.generator.domains.DataSource;
 import com.hyberbin.code.generator.domains.DataTypeDo;
 import com.hyberbin.code.generator.domains.VarDo;
 import com.hyberbin.code.generator.ui.model.DataTypeModel;
+import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import com.hyberbin.code.generator.ui.model.VarModel;
+import com.hyberbin.code.generator.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.jplus.hyb.database.transaction.IDbManager;
+
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
-import java.util.List;
-import javax.swing.DefaultComboBoxModel;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * @author admin
  */
+@Slf4j
 public class ConfigFrame extends javax.swing.JFrame {
 
   private CodeGenUIFrame codeGenUIFrame;
@@ -54,7 +64,7 @@ public class ConfigFrame extends javax.swing.JFrame {
   }
 
   private void loadAllVars() {
-    List<VarDo> all = sqliteDao.getAll(VarDo.class);
+    List<VarDo> all = sqliteDao.getAll(VarDo.class, getDbManager());
     VarModel model = getVarModel();
     for (VarDo varDo : all) {
       model.addRow(varDo);
@@ -67,6 +77,10 @@ public class ConfigFrame extends javax.swing.JFrame {
     for(DataTypeDo typeModel:all){
       model.addRow(typeModel);
     }
+  }
+
+  public IDbManager getDbManager(){
+      return  useLocalVars.isSelected()?ConfigFactory.getSimpleManage("sqlite"): ConfigFactory.getSimpleManage();
   }
 
 
@@ -98,6 +112,7 @@ public class ConfigFrame extends javax.swing.JFrame {
         datasources = new javax.swing.JComboBox<>();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        useLocalVars = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         dataTypeTable = new javax.swing.JTable();
@@ -110,6 +125,8 @@ public class ConfigFrame extends javax.swing.JFrame {
         saveButton = new javax.swing.JButton();
         addButton = new javax.swing.JButton();
         delButton = new javax.swing.JButton();
+        reloadButton = new javax.swing.JButton();
+        downloadButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -148,6 +165,9 @@ public class ConfigFrame extends javax.swing.JFrame {
             }
         });
 
+        useLocalVars.setSelected(true);
+        useLocalVars.setText("使用本地变量");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -155,28 +175,31 @@ public class ConfigFrame extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(23, 23, 23)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jLabel3)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jPasswordField1))
-                        .addComponent(datasource)
-                        .addComponent(dburl))
-                    .addComponent(datasources, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3)
-                .addGap(18, 18, 18)
-                .addComponent(jButton2)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(datasource)
+                                .addComponent(dburl)
+                                .addGroup(jPanel3Layout.createSequentialGroup()
+                                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jLabel3)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(jPasswordField1)))
+                            .addComponent(datasources, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(useLocalVars)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton3)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -200,11 +223,13 @@ public class ConfigFrame extends javax.swing.JFrame {
                     .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3)
                     .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
+                .addGap(18, 18, 18)
+                .addComponent(useLocalVars)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
                     .addComponent(jButton3))
-                .addContainerGap(104, Short.MAX_VALUE))
+                .addContainerGap(71, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("应用配置", jPanel3);
@@ -296,12 +321,32 @@ public class ConfigFrame extends javax.swing.JFrame {
             }
         });
 
+        reloadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/refresh.png"))); // NOI18N
+        reloadButton.setToolTipText("获取模板中所有变量");
+        reloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reloadButtonActionPerformed(evt);
+            }
+        });
+
+        downloadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/download.png"))); // NOI18N
+        downloadButton.setToolTipText("获取模板中所有变量");
+        downloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(411, Short.MAX_VALUE)
+                .addContainerGap(335, Short.MAX_VALUE)
+                .addComponent(downloadButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(reloadButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(delButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -314,11 +359,14 @@ public class ConfigFrame extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(saveButton)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(addButton)
-                        .addComponent(delButton)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(downloadButton)
+                    .addComponent(reloadButton)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(saveButton)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(addButton)
+                            .addComponent(delButton))))
                 .addContainerGap(322, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -417,7 +465,7 @@ public class ConfigFrame extends javax.swing.JFrame {
     VarDo varDo = getVarModel().getDatas().get(selectedRow);
       getVarModel().removeRow(selectedRow);
       getVarModel().getDatas().remove(selectedRow);
-      sqliteDao.deleteOne(VarDo.class,"key",varDo.getKey());
+      sqliteDao.deleteOne(VarDo.class,"key",varDo.getKey(), getDbManager());
   }//GEN-LAST:event_delButtonActionPerformed
 
   private void saveButtonActionPerformed(
@@ -426,7 +474,7 @@ public class ConfigFrame extends javax.swing.JFrame {
     model.save();
     List<VarDo> datas = model.getDatas();
     for (VarDo varDo : datas) {
-      sqliteDao.saveDO(varDo);
+      sqliteDao.saveDO(varDo, getDbManager());
     }
   }//GEN-LAST:event_saveButtonActionPerformed
 
@@ -452,6 +500,53 @@ public class ConfigFrame extends javax.swing.JFrame {
       sqliteDao.deleteOne(DataTypeDo.class,"dbType",dataTypeDo.getDbType());
     }//GEN-LAST:event_delButton1ActionPerformed
 
+    private void reloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadButtonActionPerformed
+        Set<String> templateVars=new HashSet<>();
+        DefaultMutableTreeNode selectedProject = codeGenUIFrame.getSelectedProject();
+        if(selectedProject==null){
+            return;
+        }
+        String project=((PathTreeBind)selectedProject.getUserObject()).getModel().getProject();
+        List<PathTreeBind> allSelectedNodes = codeGenUIFrame.getAllProjectNodes();
+        for(PathTreeBind model:allSelectedNodes){
+            if(Objects.equals(2,model.getModel().getType())&&model.getModel().getFileName().endsWith("java")){
+                templateVars.addAll(StringUtils.getAllVars(model.getModel().getTemplate()));
+            }
+        }
+        VarModel varModel = getVarModel();
+        Map<String, VarDo> oldVars = varModel.getDatas().stream().filter(v->Objects.equals(project,v.getProject())).collect(Collectors.toMap(k ->  k.getKey(), v -> v,(a,b)->a));
+        Set<String> newVars=templateVars.stream().filter(v -> !oldVars.containsKey(v)).collect(Collectors.toSet());
+        Set<String> needDeleteVars=oldVars.keySet().stream().filter(v -> !templateVars.contains(v)).collect(Collectors.toSet());
+        log.info("当前需要新增的变量有{}个，{}",newVars.size(),newVars);
+        log.info("当前需要删除的变量有{}个，{}",needDeleteVars.size(),needDeleteVars);
+        if(CollectionUtils.isNotEmpty(newVars)){
+            newVars.forEach(v->{
+                varModel.addRow(new VarDo(v,"","",project));
+            });
+        }
+        if(CollectionUtils.isNotEmpty(needDeleteVars)){
+            int confirmDialog = JOptionPane.showConfirmDialog(this, "需要删除无用变量吗?", "请选择", JOptionPane.YES_NO_OPTION);
+            if(Objects.equals(JOptionPane.YES_OPTION,confirmDialog)){
+                needDeleteVars.forEach(v->varModel.deleteRow(project,v));
+            }
+        }
+    }//GEN-LAST:event_reloadButtonActionPerformed
+
+    private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
+
+        VarModel varModel = getVarModel();
+        Map<String, VarDo> oldVars = varModel.getDatas().stream().collect(Collectors.toMap(k ->  k.getProject()+"."+k.getKey(), v -> v,(a,b)->a));
+        List<VarDo> remoteVars = sqliteDao.getAll(VarDo.class);
+        log.info("远程变量有{}个，{}",remoteVars.size(),remoteVars);
+        if(CollectionUtils.isNotEmpty(remoteVars)){
+            remoteVars.forEach(v->{
+                if(!oldVars.containsKey(v.getProject()+"."+v.getKey())){
+                    varModel.addRow(new VarDo(v.getKey(),v.getValue(),v.getNote(),v.getProject()));
+                }
+            });
+        }
+    }//GEN-LAST:event_downloadButtonActionPerformed
+
   private VarModel getVarModel() {
     return (VarModel) varTable.getModel();
   }
@@ -465,6 +560,7 @@ public class ConfigFrame extends javax.swing.JFrame {
     private javax.swing.JTextField dburl;
     private javax.swing.JButton delButton;
     private javax.swing.JButton delButton1;
+    private javax.swing.JButton downloadButton;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
@@ -480,8 +576,10 @@ public class ConfigFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JButton reloadButton;
     private javax.swing.JButton saveButton;
     private javax.swing.JButton saveButton1;
+    private javax.swing.JCheckBox useLocalVars;
     private javax.swing.JTextField username;
     private javax.swing.JTable varTable;
     // End of variables declaration//GEN-END:variables

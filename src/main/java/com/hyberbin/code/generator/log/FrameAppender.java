@@ -2,11 +2,10 @@ package com.hyberbin.code.generator.log;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
-import ch.qos.logback.core.ConsoleAppender;
 import java.io.IOException;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-public class FrameAppender extends ConsoleAppender {
+public class FrameAppender extends  ch.qos.logback.core.FileAppender{
 
   private static RSyntaxTextArea log=null;
   @Override

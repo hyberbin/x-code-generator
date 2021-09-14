@@ -109,8 +109,12 @@ public class SqliteDao {
   }
 
   public <T extends BaseDo> void saveDO(T object) {
+    saveDO(object,ConfigFactory.getSimpleManage());
+  }
+
+  public <T extends BaseDo> void saveDO(T object,IDbManager dbManager) {
     try {
-      Hyberbin hyberbin = new Hyberbin(object, ConfigFactory.getSimpleManage());
+      Hyberbin hyberbin = new Hyberbin(object, dbManager);
       if (object.getId() != null) {
         hyberbin.updateByKey("id");
       } else {
@@ -123,8 +127,12 @@ public class SqliteDao {
   }
 
   public <T extends BaseDo> void insertDO(T object) {
+    insertDO(object,ConfigFactory.getSimpleManage());
+  }
+
+  public <T extends BaseDo> void insertDO(T object,IDbManager dbManager) {
     try {
-      Hyberbin hyberbin = new Hyberbin(object, ConfigFactory.getSimpleManage());
+      Hyberbin hyberbin = new Hyberbin(object,dbManager);
       hyberbin.insert("");
     } catch (SQLException e) {
       logger.error("TreeNodeModel error!", e);
@@ -133,15 +141,24 @@ public class SqliteDao {
 
   @SneakyThrows
   public <T extends BaseDo> List<T> getAll(Class<T> type) {
-    Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
+    return getAll(type, ConfigFactory.getSimpleManage());
+  }
+
+  @SneakyThrows
+  public <T extends BaseDo> List<T> getAll(Class<T> type,IDbManager dbManager) {
+    Hyberbin hyberbin = new Hyberbin(type.newInstance(), dbManager);
     return hyberbin.showAll();
   }
 
   public <T extends BaseDo> T getOne(Class<T> type, String filed, Object value) {
+    return getOne(type, filed, value,ConfigFactory.getSimpleManage());
+  }
+
+  public <T extends BaseDo> T getOne(Class<T> type, String filed, Object value,IDbManager dbManager) {
     try {
-      Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
+      Hyberbin hyberbin = new Hyberbin(type.newInstance(), dbManager);
       return (T) hyberbin
-          .showOne("select * from " + type.getSimpleName() + " where `" + filed + "`=?", value);
+              .showOne("select * from " + type.getSimpleName() + " where `" + filed + "`=?", value);
     } catch (Throwable e) {
       logger.error("getChild error!", e);
     }
@@ -149,10 +166,14 @@ public class SqliteDao {
   }
 
   public <T extends BaseDo> int deleteOne(Class<T> type, String filed, Object value) {
+    return deleteOne(type,filed,value, ConfigFactory.getSimpleManage());
+  }
+
+  public <T extends BaseDo> int deleteOne(Class<T> type, String filed, Object value,IDbManager dbManager) {
     try {
-      Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
+      Hyberbin hyberbin = new Hyberbin(type.newInstance(), dbManager);
       return hyberbin
-          .delete(" where `" + filed + "`='"+value+"'");
+              .delete(" where `" + filed + "`='"+value+"'");
     } catch (Throwable e) {
       logger.error("getChild error!", e);
     }
@@ -160,10 +181,14 @@ public class SqliteDao {
   }
 
   public <T extends BaseDo> List<T> getList(Class<T> type, String filed, Object value) {
+    return getList(type, filed, value,ConfigFactory.getSimpleManage());
+  }
+
+  public <T extends BaseDo> List<T> getList(Class<T> type, String filed, Object value,IDbManager dbManager) {
     try {
-      Hyberbin hyberbin = new Hyberbin(type.newInstance(), ConfigFactory.getSimpleManage());
+      Hyberbin hyberbin = new Hyberbin(type.newInstance(), dbManager);
       return hyberbin
-          .showList("select * from " + type.getSimpleName() + " where `" + filed + "`=?", value);
+              .showList("select * from " + type.getSimpleName() + " where `" + filed + "`=?", value);
     } catch (Throwable e) {
       logger.error("getChild error!", e);
     }
@@ -205,6 +230,11 @@ public class SqliteDao {
   @SneakyThrows
   public List<String> getProjects(){
     IDbManager simpleManage = ConfigFactory.getSimpleManage();
+    return getProjects(simpleManage);
+  }
+
+  @SneakyThrows
+  public List<String> getProjects(IDbManager simpleManage){
     Hyberbin hyberbin=new Hyberbin(new TableMeta(),simpleManage);
     List<Map> list = hyberbin.getMapList("select DISTINCT project from VarDo");
     return list.stream().map(m->(String)m.get("project")).collect(Collectors.toList());

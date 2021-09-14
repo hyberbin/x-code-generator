@@ -2,9 +2,11 @@ package com.hyberbin.code.generator.generate;
 
 import com.alibaba.fastjson.JSON;
 import com.google.inject.Inject;
+import com.hyberbin.code.generator.config.CodeGeneratorModule;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
 import com.hyberbin.code.generator.domains.VarDo;
+import com.hyberbin.code.generator.ui.frames.ConfigFrame;
 import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import com.hyberbin.code.generator.utils.VelocityUtils;
 import lombok.SneakyThrows;
@@ -79,16 +81,19 @@ public class FileGenerate {
         log.info("当前环境变量:{}", JSON.toJSONString(vars));
         String content = VelocityUtils.evaluate(nodeModel.getTemplate(), vars);
         log.info("生成文件:{}", dir + fileName);
-        String[] lines = content.split("\n");
-        StringBuilder fileContent = new StringBuilder();
-        for (String line : lines) {
-            String trim = line.trim();
-            if (trim.startsWith("package") && trim.endsWith(";")) {
-                fileContent.append(trim.replace("-", ".")).append("\n");
-            } else {
-                fileContent.append(line).append("\n");
+        if(fileName.endsWith("java")){
+            String[] lines = content.split("\n");
+            StringBuilder fileContent = new StringBuilder();
+            for (String line : lines) {
+                String trim = line.trim();
+                if (trim.startsWith("package") && trim.endsWith(";")) {
+                    fileContent.append(trim.replace("-", ".")).append("\n");
+                } else {
+                    fileContent.append(line).append("\n");
+                }
             }
+            content=fileContent.toString();
         }
-        FileCopyUtils.copy(fileContent.toString().getBytes("utf-8"), new FileOutputStream(dir + fileName));
+        FileCopyUtils.copy(content.getBytes("utf-8"), new FileOutputStream(dir + fileName));
     }
 }
