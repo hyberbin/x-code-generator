@@ -485,7 +485,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/icons/download.png"/>
                     </Property>
-                    <Property name="toolTipText" type="java.lang.String" value="&#x83b7;&#x53d6;&#x6a21;&#x677f;&#x4e2d;&#x6240;&#x6709;&#x53d8;&#x91cf;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="&#x4e0b;&#x8f7d;&#x6240;&#x6709;&#x8fdc;&#x7a0b;&#x53d8;&#x91cf;"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="downloadButtonActionPerformed"/>

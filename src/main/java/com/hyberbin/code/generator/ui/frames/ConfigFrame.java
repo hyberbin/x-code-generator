@@ -330,7 +330,7 @@ public class ConfigFrame extends javax.swing.JFrame {
         });
 
         downloadButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/download.png"))); // NOI18N
-        downloadButton.setToolTipText("获取模板中所有变量");
+        downloadButton.setToolTipText("下载所有远程变量");
         downloadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 downloadButtonActionPerformed(evt);
