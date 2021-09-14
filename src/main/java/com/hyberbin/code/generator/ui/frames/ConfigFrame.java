@@ -18,6 +18,7 @@ import com.hyberbin.code.generator.ui.model.VarModel;
 import com.hyberbin.code.generator.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.jplus.hyb.database.sqlite.SqliteUtil;
 import org.jplus.hyb.database.transaction.IDbManager;
 
 import java.awt.Toolkit;
@@ -52,6 +53,11 @@ public class ConfigFrame extends javax.swing.JFrame {
     loadAllDataSource();
     loadAllVars();
     loadAllDataTypeMapping();
+    String useLocalVars = SqliteUtil.getProperty("useLocalVars");
+    if(org.apache.commons.lang3.StringUtils.isBlank(useLocalVars)){
+        SqliteUtil.setProperty("useLocalVars","true");
+    }
+    SqliteUtil.bindJCheckBoxField(this.useLocalVars,"useLocalVars");
   }
 
   private void loadAllDataSource() {
