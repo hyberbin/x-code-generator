@@ -445,6 +445,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
       model.setFileName(fileName.getText());
       model.setPathName(pathName.getText());
       model.setTemplate(templateTextArea.getText());
+      model.setProject(pathName.getText());
       if(parent.isRoot()){
         childrenFilter(node,n->{
             PathTreeBind childTreeBind= (PathTreeBind)n.getUserObject();
