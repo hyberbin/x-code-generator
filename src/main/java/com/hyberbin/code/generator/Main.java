@@ -5,6 +5,8 @@ import com.hyberbin.code.generator.ui.frames.CodeGenUIFrame;
 import javax.swing.UIManager;
 import lombok.SneakyThrows;
 
+import java.io.File;
+
 public class Main {
 
   /**
@@ -34,6 +36,13 @@ public class Main {
         }
         CodeGenUIFrame CoderQueenUIFrame= CodeGeneratorModule.getInstance(CodeGenUIFrame.class);
         CoderQueenUIFrame.setVisible(true);
+        /**
+         * 第一次启动时删除老版本文件
+         */
+        if(args!=null&&args.length>0){
+          new File(args[0]).delete();
+          System.exit(-1);
+        }
       }
     });
   }

@@ -6,9 +6,9 @@
 package com.hyberbin.code.generator.ui.frames;
 
 
+import com.google.inject.Inject;
 import com.hyberbin.code.generator.config.ConfigFactory;
 import com.hyberbin.code.generator.dao.SqliteDao;
-import com.google.inject.Inject;
 import com.hyberbin.code.generator.domains.DataSource;
 import com.hyberbin.code.generator.domains.DataTypeDo;
 import com.hyberbin.code.generator.domains.VarDo;
@@ -21,12 +21,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jplus.hyb.database.sqlite.SqliteUtil;
 import org.jplus.hyb.database.transaction.IDbManager;
 
-import java.awt.Toolkit;
-import java.awt.event.ItemEvent;
-import java.util.*;
-import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author admin
@@ -508,16 +509,21 @@ public class ConfigFrame extends javax.swing.JFrame {
 
     private void reloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadButtonActionPerformed
         Set<String> templateVars=new HashSet<>();
+        templateVars.add("basePath");//默认的变量
         DefaultMutableTreeNode selectedProject = codeGenUIFrame.getSelectedProject();
         if(selectedProject==null){
             return;
         }
         String project=((PathTreeBind)selectedProject.getUserObject()).getModel().getProject();
         List<PathTreeBind> allSelectedNodes = codeGenUIFrame.getAllProjectNodes();
-        for(PathTreeBind model:allSelectedNodes){
-            if(Objects.equals(2,model.getModel().getType())&&model.getModel().getFileName().endsWith("java")){
+        for (PathTreeBind model : allSelectedNodes) {
+            if (Objects.equals(2, model.getModel().getType())) {
                 templateVars.addAll(StringUtils.getAllVars(model.getNodePath()));
-                templateVars.addAll(StringUtils.getAllVars(model.getModel().getTemplate()));
+                if (model.getModel().getFileName().endsWith("java")) {
+                    templateVars.addAll(StringUtils.getAllVars(model.getModel().getTemplate()));
+                } else if (model.getModel().getFileName().endsWith("xml")) {
+                    templateVars.addAll(StringUtils.getKeyVars(model.getModel().getTemplate(), "groupId", "artifactId"));
+                }
             }
         }
         VarModel varModel = getVarModel();

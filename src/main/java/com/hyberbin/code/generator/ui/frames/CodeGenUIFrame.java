@@ -34,6 +34,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.FutureTask;
@@ -703,32 +704,31 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
      * @param auto 是否自动触发
      */
     private void checkUpdate(boolean auto) {
-        List<VersionDo> versionDos = sqliteDao.getAll(VersionDo.class);
-        boolean update = CollectionUtils.isNotEmpty(versionDos) && !Objects.equals(versionDos.get(0).getVersion(), ConfigFactory.getCurrentVersion());
-        if (!update) {
-            if (!auto) {
-                JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
-            }
-            return;
-        }
-        int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?", "更新提示", JOptionPane.YES_NO_OPTION);
-        FutureTask task = new FutureTask(() -> {
-            if (Objects.equals(JOptionPane.YES_OPTION, option)) {
-                try {
-                    for (VersionDo versionDo : versionDos) {
-                        DownloadUtils.main(new String[]{versionDo.getHttpPath(), versionDo.getLocalPath()});
-                    }
-                    Runtime.getRuntime().exec("java -jar XCodeGenerator-1.0-SNAPSHOT.jar");
-                    System.exit(0);
-                } catch (Throwable e) {
-                    logger.info("更新出错", e);
-                    JOptionPane.showMessageDialog(null, "更新出错\n\r" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            return null;
-        });
-        new Thread(task).start();
         try {
+            VersionDo versionDo = sqliteDao.getAll(VersionDo.class).get(0);
+            boolean update = !Objects.equals(versionDo.getVersion(), ConfigFactory.getCurrentVersion());
+            if (!update) {
+                if (!auto) {
+                    JOptionPane.showMessageDialog(this, "当前已经是最新版本", "提示", JOptionPane.INFORMATION_MESSAGE);
+                }
+                return;
+            }
+            int option = JOptionPane.showConfirmDialog(this, "有新的版本，是否更新?", "更新提示", JOptionPane.YES_NO_OPTION);
+            FutureTask task = new FutureTask(() -> {
+                if (Objects.equals(JOptionPane.YES_OPTION, option)) {
+                    try {
+                        String oldVersionFile = DownloadUtils.downloadNewVersion(versionDo.getHttpPath(), versionDo.getLocalPath());
+                        Runtime.getRuntime().exec("java -jar "+versionDo.getLocalPath() +" \""+oldVersionFile+"\"");
+                        System.exit(0);
+                    } catch (Throwable e) {
+                        logger.info("更新出错", e);
+                        JOptionPane.showMessageDialog(null, "更新出错\n\r" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                return null;
+            });
+            new Thread(task).start();
+
             task.get(10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             logger.info("更新超时");

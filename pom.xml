@@ -13,66 +13,6 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-  <profiles>
-    <profile>
-      <id>jnlp</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo.webstart</groupId>
-            <artifactId>webstart-maven-plugin</artifactId>
-            <version>1.0-beta-2</version>
-
-            <executions>
-              <execution>
-                <id>package</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jnlp-inline</goal>
-                </goals>
-              </execution>
-            </executions>
-
-            <configuration>
-              <jnlp>
-                <outputFile>XCodeGenerator.jnlp</outputFile>
-                <mainClass>com.hyberbin.code.generator.Main</mainClass>
-              </jnlp>
-
-              <libPath>lib</libPath>
-
-              <sign>
-                <keystore>XCodeGenerator-KeyStore</keystore>
-                <keypass>123456</keypass>
-                <storepass>123456</storepass>
-                <alias>XCodeGenerator</alias>
-                <validity>3650</validity>
-
-                <dnameCn>hyberbin</dnameCn>
-                <dnameOu>prophetech</dnameOu>
-                <dnameO>prophetech</dnameO>
-                <dnameL>WuHan</dnameL>
-                <dnameSt>HuBei</dnameSt>
-                <dnameC>CH</dnameC>
-
-                <verify>false</verify>
-                <keystoreConfig>
-                  <delete>true</delete>
-                  <gen>true</gen>
-                </keystoreConfig>
-              </sign>
-
-              <pack200>false</pack200>
-              <gzip>true</gzip>
-              <outputJarVersions>false</outputJarVersions>
-              <verbose>true</verbose>
-
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
   <build>
     <resources>
       <resource>
@@ -134,7 +74,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
+        <version>3.1</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -143,7 +83,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.2</version>
         <configuration>
           <outputDirectory>
             ${basedir}/dist
@@ -151,7 +90,6 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <classpathPrefix>lib/</classpathPrefix>
               <mainClass>com.hyberbin.code.generator.Main</mainClass>
             </manifest>
             <manifestEntries>
@@ -165,21 +103,14 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.4</version>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
         <executions>
           <execution>
-            <id>copy</id>
-            <phase>install</phase>
+            <phase>package</phase>
             <goals>
-              <goal>copy-dependencies</goal>
+              <goal>shade</goal>
             </goals>
-            <configuration>
-              <excludeScope>provided</excludeScope>
-              <outputDirectory>
-                ${basedir}/dist/lib
-              </outputDirectory>
-            </configuration>
           </execution>
         </executions>
       </plugin>
