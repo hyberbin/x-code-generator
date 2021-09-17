@@ -7,6 +7,9 @@ import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class VarModel extends DefaultTableModel {
 
@@ -45,6 +48,10 @@ public class VarModel extends DefaultTableModel {
                 }
             }
         }
+    }
+
+    public Set<String> getProjects(){
+        return datas.stream().map(varDo -> varDo.getProject()).collect(Collectors.toSet());
     }
 
 

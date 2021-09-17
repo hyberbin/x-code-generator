@@ -228,12 +228,6 @@ public class SqliteDao {
   }
 
   @SneakyThrows
-  public List<String> getProjects(){
-    IDbManager simpleManage = ConfigFactory.getSimpleManage();
-    return getProjects(simpleManage);
-  }
-
-  @SneakyThrows
   public List<String> getProjects(IDbManager simpleManage){
     Hyberbin hyberbin=new Hyberbin(new TableMeta(),simpleManage);
     List<Map> list = hyberbin.getMapList("select DISTINCT project from VarDo");

@@ -19,10 +19,7 @@ import com.hyberbin.code.generator.utils.StringUtils;
 import com.hyberbin.code.generator.vo.FieldMetaVo;
 import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.swing.DefaultComboBoxModel;
 import lombok.extern.slf4j.Slf4j;
 import org.jplus.hyb.database.sqlite.SqliteUtil;
@@ -68,10 +65,11 @@ public class SelectColumnFrame extends javax.swing.JFrame {
     }
 
     private void loadProjectEnvs(String selected) {
+        ConfigFrame configFrame = CodeGeneratorModule.getInstance(ConfigFrame.class);
+        Set<String> projects = configFrame.getVarModel().getProjects();
         if(StringUtils.isEmpty(selected)){
             selected=SqliteUtil.getProperty("projectEnvs");
         }
-        List<String> projects = sqliteDao.getProjects();
         DefaultComboBoxModel model = (DefaultComboBoxModel) projectEnvs.getModel();
         model.removeAllElements();
         for (String env : projects) {

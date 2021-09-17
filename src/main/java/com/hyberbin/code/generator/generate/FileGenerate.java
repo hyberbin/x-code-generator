@@ -2,19 +2,15 @@ package com.hyberbin.code.generator.generate;
 
 import com.alibaba.fastjson.JSON;
 import com.google.inject.Inject;
-import com.hyberbin.code.generator.config.CodeGeneratorModule;
-import com.hyberbin.code.generator.config.ConfigFactory;
-import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.TreeNodeModel;
 import com.hyberbin.code.generator.domains.VarDo;
+import com.hyberbin.code.generator.ui.frames.CodeGenUIFrame;
 import com.hyberbin.code.generator.ui.frames.ConfigFrame;
 import com.hyberbin.code.generator.ui.model.PathTreeBind;
 import com.hyberbin.code.generator.utils.VelocityUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jplus.hyb.database.sqlite.SqliteUtil;
-import org.jplus.hyb.database.transaction.IDbManager;
 import org.jplus.util.FileCopyUtils;
 
 import java.io.File;
@@ -26,16 +22,14 @@ import java.util.Objects;
 @Slf4j
 public class FileGenerate {
 
-    private SqliteDao sqliteDao;
-    private List<VarDo> varDos;
+    private ConfigFrame configFrame;
 
     @Inject
-    public FileGenerate(SqliteDao sqliteDao) {
-        this.sqliteDao = sqliteDao;
+    public FileGenerate(ConfigFrame configFrame) {
+        this.configFrame = configFrame;
     }
 
     public void generate(DataContext context) {
-        varDos = null;
         List<PathTreeBind> all = context.getTemplates();
         for(PathTreeBind model:all){
             if(Objects.equals(2,model.getModel().getType())){
@@ -46,11 +40,8 @@ public class FileGenerate {
 
     @SneakyThrows
     private void generate(String filePath, DataContext context, TreeNodeModel nodeModel) {
-
         HashMap vars = new HashMap();
-        if (varDos == null) {
-            varDos = sqliteDao.getAll(VarDo.class, SqliteUtil.getBoolProperty("useLocalVars")? ConfigFactory.getSimpleManage("sqlite"): ConfigFactory.getSimpleManage());
-        }
+        List<VarDo> varDos = configFrame.getVarModel().getDatas();
         varDos.forEach(v -> {
             if (StringUtils.isEmpty(v.getProject()) || Objects.equals("global", v.getProject())) {
                 vars.put(v.getKey(), v.getValue());

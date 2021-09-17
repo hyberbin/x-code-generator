@@ -560,7 +560,7 @@ public class ConfigFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_downloadButtonActionPerformed
 
-  private VarModel getVarModel() {
+  public VarModel getVarModel() {
     return (VarModel) varTable.getModel();
   }
 

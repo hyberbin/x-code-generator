@@ -40,6 +40,7 @@ import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -121,11 +122,9 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextArea1 = new org.fife.ui.rsyntaxtextarea.RSyntaxTextArea();
-        jTextPane1 = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenu3 = new javax.swing.JMenu();
-        selectTableMenuItem = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
 
         addFileMenuItem.setText("添加文件");
@@ -170,6 +169,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         treeMenu.add(pasteMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("XCodeGenerator");
 
         jSplitPane2.setDividerLocation(400);
         jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -260,11 +260,6 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
 
         jSplitPane2.setRightComponent(jTabbedPane1);
 
-        jTextPane1.setEditable(false);
-        jTextPane1.setText("这里是提示消息");
-        jTextPane1.setEnabled(false);
-        jTextPane1.setFocusable(false);
-
         jMenu2.setText("设置");
         jMenu2.setToolTipText("设置");
         jMenu2.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -280,7 +275,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText("生成");
-        jMenu3.setToolTipText("设置");
+        jMenu3.setToolTipText("生成");
         jMenu3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jMenu3MousePressed(evt);
@@ -291,18 +286,10 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
                 jMenu3ActionPerformed(evt);
             }
         });
-
-        selectTableMenuItem.setText("选择表");
-        selectTableMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectTableMenuItemActionPerformed(evt);
-            }
-        });
-        jMenu3.add(selectTableMenuItem);
-
         jMenuBar1.add(jMenu3);
 
         jMenu1.setText("更新");
+        jMenu1.setToolTipText("更新");
         jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jMenu1MousePressed(evt);
@@ -321,19 +308,11 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane2, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jTextPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1155, Short.MAX_VALUE))
+            .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1155, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
-                .addGap(26, 26, 26))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(581, Short.MAX_VALUE)
-                    .addComponent(jTextPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addComponent(jSplitPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 605, Short.MAX_VALUE)
         );
 
         pack();
@@ -420,11 +399,11 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_jMenu2MousePressed
 
     private void jMenu3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu3MousePressed
-        // TODO add your handling code here:
+       CodeGeneratorModule.getInstance(SelectTableFrame.class).setVisible(true);
     }//GEN-LAST:event_jMenu3MousePressed
 
     private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
-        // TODO add your handling code here:
+        CodeGeneratorModule.getInstance(SelectTableFrame.class).setVisible(true);
     }//GEN-LAST:event_jMenu3ActionPerformed
 
     private void addFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileMenuItemActionPerformed
@@ -460,10 +439,6 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     private void addDirMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDirMenuItem1ActionPerformed
       addNode(true);
     }//GEN-LAST:event_addDirMenuItem1ActionPerformed
-
-    private void selectTableMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectTableMenuItemActionPerformed
-        CodeGeneratorModule.getInstance(SelectTableFrame.class).setVisible(true);
-    }//GEN-LAST:event_selectTableMenuItemActionPerformed
 
     private void pathNameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pathNameFocusLost
         saveButtonActionPerformed(null);
@@ -757,11 +732,9 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JTextField pathName;
     private javax.swing.JButton saveButton;
-    private javax.swing.JMenuItem selectTableMenuItem;
     private javax.swing.JTextArea templateTextArea;
     private javax.swing.JPopupMenu treeMenu;
     // End of variables declaration//GEN-END:variables
