@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class DataTypeDo extends BaseDo {
 
-  private String dbType;
-  private String javaType;
-  private String jdbcType;
+    private String dbType;
+    private String javaType;
+    private String jdbcType;
 }

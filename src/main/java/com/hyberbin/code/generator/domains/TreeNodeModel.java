@@ -11,13 +11,12 @@ import lombok.Data;
  * @author Administrator
  */
 @Data
-public class TreeNodeModel extends BaseDo{
+public class TreeNodeModel extends BaseDo {
 
-
-  private Integer type;//1目录、2文件
-  private String pathName;
-  private String fileName;
-  private String template;
-  private String parentId;
-  private String project;
+    private Integer type;//1目录、2文件
+    private String pathName;
+    private String fileName;
+    private String template;
+    private String parentId;
+    private String project;
 }

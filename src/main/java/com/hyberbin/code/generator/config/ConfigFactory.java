@@ -1,18 +1,8 @@
 package com.hyberbin.code.generator.config;
 
-
 import com.hyberbin.code.generator.dao.SqliteDao;
+import com.hyberbin.code.generator.domains.DataSource;
 import com.hyberbin.code.generator.domains.DataTypeDo;
-import com.hyberbin.code.generator.utils.StringUtils;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 import org.jplus.hyb.database.config.DbConfig;
 import org.jplus.hyb.database.config.SimpleConfigurator;
 import org.jplus.hyb.database.sqlite.SqliteUtil;
@@ -21,57 +11,45 @@ import org.jplus.hyb.database.transaction.SimpleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 public class ConfigFactory {
+
     private static final Logger logger = LoggerFactory.getLogger(ConfigFactory.class);
+    public static final DbConfig SQLITE_DB = new DbConfig(DbConfig.URL_SQLITE, "sqlite");
+    public static final IDbManager SQLITE_MANAGER = getSimpleManage(SQLITE_DB.getConfigName());
+    public static DbConfig DEFAULT_CONFIG = loadConfig();
+    public static final String REMOTE_DB_CONFIG_ENABLE = "remoteDbConfigEnable";
+    public static final String REMOTE_DB_CONFIG_NAME = "远程配置中心";
 
-
-    private static DbConfig DEFAULT_CONFIG = loadConfig();
-
-    private static DbConfig loadConfig() {
-        DbConfig defaultConfig = new DbConfig(DbConfig.URL_SQLITE, "sqlite");
-        Properties properties=new Properties();
-        try (InputStream is=ConfigFactory.class.getResourceAsStream("/config/datasource.properties")){
-            properties.load(is);
-        }catch (Throwable e){
-            String configPath = SqliteUtil.getProperty("configPath");
-            if(StringUtils.isBlank(configPath)){
-                JFileChooser fileChooser=new JFileChooser();
-                fileChooser.setCurrentDirectory(new File("./"));
-                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                fileChooser.addChoosableFileFilter(new FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.getName().endsWith(".properties");
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "请选择一个properties文件";
-                    }
-                });
-                fileChooser.showDialog(null,"请选择一个properties文件");
-                File selectedFile = fileChooser.getSelectedFile();
-                configPath=selectedFile.getPath();
-                SqliteUtil.setProperty("configPath",configPath);
-            }
-            try (InputStream is=new FileInputStream(configPath)){
-                properties.load(is);
-            }catch (Throwable t){
-                logger.info("读取配置文件出错，请检查/config/datasource.properties");
-                return defaultConfig;
-            }
+    /**
+     * 加载配置中心
+     *
+     * @return
+     */
+    public static DbConfig loadConfig() {
+        boolean remoteDbEnable = SqliteUtil.getBoolProperty(REMOTE_DB_CONFIG_ENABLE);
+        if (!remoteDbEnable) {
+            return SQLITE_DB;
         }
-        String names=properties.getProperty("datasource.names");
-        String active=properties.getProperty("datasource.active");
-        if(StringUtils.isBlank(names)||StringUtils.isBlank(active)){
-            logger.error("请检查配置文件中datasource.names和datasource.active");
-            return defaultConfig;
+        SqliteDao sqliteDao = CodeGeneratorModule.getInstance(SqliteDao.class);
+        DataSource remoteDatasource = sqliteDao.getOne(DataSource.class, "datasource", REMOTE_DB_CONFIG_NAME, SQLITE_MANAGER);
+        if (remoteDatasource == null) {
+            remoteDatasource = new DataSource();
+            remoteDatasource.setDatasource(REMOTE_DB_CONFIG_NAME);
+            remoteDatasource.setUrl(DbConfig.getMysqlUrl("127.0.0.1", "x-generator"));
+            remoteDatasource.setUsername("root");
+            remoteDatasource.setPassword("root");
+            sqliteDao.saveDO(remoteDatasource, getSimpleManage(SQLITE_DB.getConfigName()));
         }
-        String username=properties.getProperty(String.join(".","datasource",active,"username"));
-        String password=properties.getProperty(String.join(".","datasource",active,"password"));
-        String url=properties.getProperty(String.join(".","datasource",active,"url"));
-        DbConfig dbConfig = new DbConfig(url, username, password, active);
+        DbConfig dbConfig = new DbConfig(remoteDatasource.getUrl(), remoteDatasource.getUsername(), remoteDatasource.getPassword(), REMOTE_DB_CONFIG_NAME);
         SimpleConfigurator.addConfigurator(dbConfig);
+        DEFAULT_CONFIG = dbConfig;
         return dbConfig;
     }
 
@@ -79,9 +57,12 @@ public class ConfigFactory {
         return DEFAULT_CONFIG;
     }
 
-
     public static IDbManager getSimpleManage() {
         return new SimpleManager(getDbConfig().getConfigName());
+    }
+
+    public static IDbManager getRemoteManage() {
+        return new SimpleManager(REMOTE_DB_CONFIG_NAME);
     }
 
     public static IDbManager getSimpleManage(String configName) {
@@ -98,14 +79,14 @@ public class ConfigFactory {
         return map;
     }
 
-    public static String getCurrentVersion(){
-        Properties properties=new Properties();
-        try (InputStream is=ConfigFactory.class.getResourceAsStream("/version/version.properties")){
+    public static String getCurrentVersion() {
+        Properties properties = new Properties();
+        try (InputStream is = ConfigFactory.class.getResourceAsStream("/version/version.properties")) {
             properties.load(is);
             String version = properties.getProperty("version");
-            logger.info("当前版本:{}",version);
+            logger.info("当前版本:{}", version);
             return version;
-        }catch (Throwable e){
+        } catch (Throwable e) {
             return null;
         }
     }

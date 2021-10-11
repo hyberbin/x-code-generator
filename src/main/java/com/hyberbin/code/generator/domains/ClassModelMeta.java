@@ -5,15 +5,15 @@ import lombok.Data;
 @Data
 public class ClassModelMeta extends TableMeta {
 
-  private String className;
+    private String className;
 
-  public ClassModelMeta(){
+    public ClassModelMeta() {
 
-  }
+    }
 
-  public ClassModelMeta (TableMeta tableMeta){
-    this.setDbName(tableMeta.getDbName());
-    this.setComment(tableMeta.getComment());
-    this.setTableName(tableMeta.getTableName());
-  }
+    public ClassModelMeta(TableMeta tableMeta) {
+        this.setDbName(tableMeta.getDbName());
+        this.setComment(tableMeta.getComment());
+        this.setTableName(tableMeta.getTableName());
+    }
 }

@@ -32,7 +32,7 @@ public class VarModel extends DefaultTableModel {
     public void addRow(VarDo varDo) {
         synchronized (this) {
             this.addRow(new Object[]{StringUtils.isEmpty(varDo.getProject()) ? "global" : varDo.getProject(), varDo.getKey(), varDo.getNote(),
-                    varDo.getValue()});
+                varDo.getValue()});
             datas.add(varDo);
         }
     }
@@ -50,10 +50,9 @@ public class VarModel extends DefaultTableModel {
         }
     }
 
-    public Set<String> getProjects(){
+    public Set<String> getProjects() {
         return datas.stream().map(varDo -> varDo.getProject()).collect(Collectors.toSet());
     }
-
 
     public List<VarDo> getDatas() {
         return datas;

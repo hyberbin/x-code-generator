@@ -10,10 +10,11 @@ import java.nio.channels.ReadableByteChannel;
 
 @Slf4j
 public class DownloadUtils {
+
     /**
      * 下载新版本
      *
-     * @param httppath  http路径
+     * @param httppath http路径
      * @param localpath 本地存放路径
      * @return 当前版本文件所在路径
      * @throws Exception
@@ -27,7 +28,7 @@ public class DownloadUtils {
         String oldFilePath = DownloadUtils.class.getResource("").getFile();
         log.info("准备下载文件:{}", httppath);
         try (ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-             FileOutputStream fos = new FileOutputStream(file)) {
+                FileOutputStream fos = new FileOutputStream(file)) {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }
         log.info("下载完成，等待重启");

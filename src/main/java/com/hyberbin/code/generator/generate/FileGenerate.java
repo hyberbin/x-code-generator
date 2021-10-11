@@ -31,9 +31,9 @@ public class FileGenerate {
 
     public void generate(DataContext context) {
         List<PathTreeBind> all = context.getTemplates();
-        for(PathTreeBind model:all){
-            if(Objects.equals(2,model.getModel().getType())){
-                generate(model.getNodePath(),context,model.getModel());
+        for (PathTreeBind model : all) {
+            if (Objects.equals(2, model.getModel().getType())) {
+                generate(model.getNodePath(), context, model.getModel());
             }
         }
     }
@@ -65,7 +65,7 @@ public class FileGenerate {
         if (srcs.length == 2) {
             path = srcs[0] + "src" + srcs[1].replace("-", "/");
         }
-        String dir =path.substring(0, path.lastIndexOf("/") + 1).replace(".", "/");
+        String dir = path.substring(0, path.lastIndexOf("/") + 1).replace(".", "/");
         if (!new File(dir).exists()) {
             new File(dir).mkdirs();
             log.info("新建文件夹:{}", dir);
@@ -75,7 +75,7 @@ public class FileGenerate {
         log.info("当前环境变量:{}", JSON.toJSONString(vars));
         String content = VelocityUtils.evaluate(nodeModel.getTemplate(), vars);
         log.info("生成文件:{}", dir + fileName);
-        if(fileName.endsWith("java")){
+        if (fileName.endsWith("java")) {
             String[] lines = content.split("\n");
             StringBuilder fileContent = new StringBuilder();
             for (String line : lines) {
@@ -86,7 +86,7 @@ public class FileGenerate {
                     fileContent.append(line).append("\n");
                 }
             }
-            content=fileContent.toString();
+            content = fileContent.toString();
         }
         FileCopyUtils.copy(content.getBytes("utf-8"), new FileOutputStream(dir + fileName));
     }

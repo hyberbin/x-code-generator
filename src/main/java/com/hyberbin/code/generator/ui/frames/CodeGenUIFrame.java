@@ -5,7 +5,6 @@
  */
 package com.hyberbin.code.generator.ui.frames;
 
-
 import com.google.inject.Inject;
 import com.hyberbin.code.generator.config.CodeGeneratorModule;
 import com.hyberbin.code.generator.config.ConfigFactory;
@@ -25,6 +24,8 @@ import com.hyberbin.code.generator.utils.ModelUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.jplus.hyb.database.sqlite.SqliteUtil;
+import org.jplus.hyb.database.transaction.IDbManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +35,11 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.io.File;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -48,58 +47,59 @@ import java.util.function.Predicate;
  */
 public class CodeGenUIFrame extends javax.swing.JFrame {
 
-  private static final Logger logger = LoggerFactory.getLogger(CodeGenUIFrame.class);
-  private DefaultMutableTreeNode ROOT = null;
-  private SqliteDao sqliteDao;
-  private javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
-  private javax.swing.JTree jTree1 = new javax.swing.JTree();
+    private static final Logger logger = LoggerFactory.getLogger(CodeGenUIFrame.class);
+    private DefaultMutableTreeNode ROOT = null;
+    private SqliteDao sqliteDao;
+    private javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+    private javax.swing.JTree jTree1 = new javax.swing.JTree();
 
-  /**
-   * Creates new form CoderQueenUIFrame
-   */
-  @Inject
-  public CodeGenUIFrame(SqliteDao sqliteDao) {
-    this.sqliteDao = sqliteDao;
-    initComponents();
-    setIconImage(new ImageIcon(getClass().getResource("/icons/logo.png")).getImage());
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    int x = (int) (toolkit.getScreenSize().getWidth() - getWidth()) / 2;
-    int y = (int) (toolkit.getScreenSize().getHeight() - getHeight()) / 2;
-    setLocation(x, y);
-    javax.swing.tree.DefaultMutableTreeNode treeNode1 = new CheckBoxTreeNode("根目录");
-    jTree1.setRowHeight(25);
-    jTree1.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-    jTree1.addMouseListener(new CheckBoxTreeNodeSelectionListener(mouseEvent -> {
-      jTree1MousePressed(mouseEvent);
-      return null;
-    }));
-    jTree1.setCellRenderer(new CheckBoxTreeCellRenderer());
-    jTree1.addTreeSelectionListener(evt -> jTree1ValueChanged(evt));
-    jScrollPane1.setViewportView(jTree1);
-    jSplitPane1.setLeftComponent(jScrollPane1);
-    jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-    getRSyntaxTextArea(templateTextArea).setCodeFoldingEnabled(true);
-    getRSyntaxTextArea(templateTextArea).setSyntaxEditingStyle(
-        SyntaxConstants.SYNTAX_STYLE_JAVA);
-    getRSyntaxTextArea(templateTextArea).setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
-    pathName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-    fileName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-    templateTextArea.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-      FrameAppender.setLog((RSyntaxTextArea)jTextArea1);
-    loadAllTemplate();
-    setVisible(true);
-      checkUpdate(true);
-  }
+    /**
+     * Creates new form CoderQueenUIFrame
+     */
+    @Inject
+    public CodeGenUIFrame(SqliteDao sqliteDao) {
+        this.sqliteDao = sqliteDao;
+        initComponents();
+        setIconImage(new ImageIcon(getClass().getResource("/icons/logo.png")).getImage());
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        int x = (int) (toolkit.getScreenSize().getWidth() - getWidth()) / 2;
+        int y = (int) (toolkit.getScreenSize().getHeight() - getHeight()) / 2;
+        setLocation(x, y);
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new CheckBoxTreeNode("根目录");
+        jTree1.setRowHeight(25);
+        jTree1.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        jTree1.addMouseListener(new CheckBoxTreeNodeSelectionListener(mouseEvent -> {
+            jTree1MousePressed(mouseEvent);
+            return null;
+        }));
+        jTree1.setCellRenderer(new CheckBoxTreeCellRenderer());
+        jTree1.addTreeSelectionListener(evt -> jTree1ValueChanged(evt));
+        jScrollPane1.setViewportView(jTree1);
+        jSplitPane1.setLeftComponent(jScrollPane1);
+        jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        getRSyntaxTextArea(templateTextArea).setCodeFoldingEnabled(true);
+        getRSyntaxTextArea(templateTextArea).setSyntaxEditingStyle(
+                SyntaxConstants.SYNTAX_STYLE_JAVA);
+        getRSyntaxTextArea(templateTextArea).setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        pathName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        fileName.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        templateTextArea.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        FrameAppender.setLog((RSyntaxTextArea) jTextArea1);
+        loadAllTemplate();
+        setVisible(true);
+        checkUpdate(true);
+    }
 
-  private RSyntaxTextArea getRSyntaxTextArea(JTextArea textArea) {
-    return (RSyntaxTextArea) textArea;
-  }
+    private RSyntaxTextArea getRSyntaxTextArea(JTextArea textArea) {
+        return (RSyntaxTextArea) textArea;
+    }
 
-  /**
-   * This method is called from within the constructor to initialize the form. WARNING: Do NOT
-   * modify this code. The content of this method is always regenerated by the Form Editor.
-   */
-  @SuppressWarnings("unchecked")
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -318,88 +318,86 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-
-  private void jComboBox2ActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-    // TODO add your handling code here:
+    private void jComboBox2ActionPerformed(
+            java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        // TODO add your handling code here:
   }//GEN-LAST:event_jComboBox2ActionPerformed
 
-  private void selectTreeNode(PathTreeBind pathTreeBind) {
-    TreeNodeModel treeNodeModel = pathTreeBind.getModel();
-    pathName.setText(treeNodeModel.getPathName());
-    pathName.setEnabled(true);
-    fileName.setEnabled(true);
-    fileName.setText(treeNodeModel.getFileName());
-    if(Constants.NODE_TYPE_DIR.equals(treeNodeModel.getType())){
-      templateTextArea.setText("");
-      templateTextArea.setEnabled(false);
-    }else if(Constants.NODE_TYPE_FILE.equals(treeNodeModel.getType())){
-      templateTextArea.setText(treeNodeModel.getTemplate());
-      templateTextArea.setEnabled(true);
+    private void selectTreeNode(PathTreeBind pathTreeBind) {
+        TreeNodeModel treeNodeModel = pathTreeBind.getModel();
+        pathName.setText(treeNodeModel.getPathName());
+        pathName.setEnabled(true);
+        fileName.setEnabled(true);
+        fileName.setText(treeNodeModel.getFileName());
+        if (Constants.NODE_TYPE_DIR.equals(treeNodeModel.getType())) {
+            templateTextArea.setText("");
+            templateTextArea.setEnabled(false);
+        } else if (Constants.NODE_TYPE_FILE.equals(treeNodeModel.getType())) {
+            templateTextArea.setText(treeNodeModel.getTemplate());
+            templateTextArea.setEnabled(true);
+        }
     }
-  }
 
-  private void jTree1ValueChanged(
-      javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
-    DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-    if (node == null) {
-      return;
-    }
-    Object userObject = node.getUserObject();
-    if (userObject instanceof PathTreeBind) {
-      PathTreeBind pathTreeBind = ((PathTreeBind) userObject);
-      selectTreeNode(pathTreeBind);
-    }else {
-      fileName.setText("");
-      fileName.setEnabled(false);
-      pathName.setText("");
-      pathName.setEnabled(false);
-      templateTextArea.setText("");
-      templateTextArea.setEnabled(false);
-    }
+    private void jTree1ValueChanged(
+            javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        if (node == null) {
+            return;
+        }
+        Object userObject = node.getUserObject();
+        if (userObject instanceof PathTreeBind) {
+            PathTreeBind pathTreeBind = ((PathTreeBind) userObject);
+            selectTreeNode(pathTreeBind);
+        } else {
+            fileName.setText("");
+            fileName.setEnabled(false);
+            pathName.setText("");
+            pathName.setEnabled(false);
+            templateTextArea.setText("");
+            templateTextArea.setEnabled(false);
+        }
 
   }//GEN-LAST:event_jTree1ValueChanged
 
-
   private void jTree1MousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_jTree1MousePressed
-    if (e.getButton() == 3) {
-      TreePath path = jTree1.getPathForLocation(e.getX(), e.getY()); // 关键是这个方法的使用
-      if (path == null) {  //JTree上没有任何项被选中
-        return;
+      if (e.getButton() == 3) {
+          TreePath path = jTree1.getPathForLocation(e.getX(), e.getY()); // 关键是这个方法的使用
+          if (path == null) {  //JTree上没有任何项被选中
+              return;
+          }
+          jTree1.setSelectionPath(path);
+          treeMenu.show(jTree1, e.getX(), e.getY());
+          DefaultMutableTreeNode component = (DefaultMutableTreeNode) path.getLastPathComponent();
+          if (component.isRoot()) {
+              delMenuItem.setEnabled(false);
+              addDirMenuItem1.setEnabled(true);
+              addFileMenuItem.setEnabled(true);
+          } else if (component.getUserObject() instanceof PathTreeBind) {
+              PathTreeBind treeBind = (PathTreeBind) component.getUserObject();
+              delMenuItem.setEnabled(true);
+              if (Constants.NODE_TYPE_FILE.equals(treeBind.getModel().getType())) {
+                  addDirMenuItem1.setEnabled(false);
+                  addFileMenuItem.setEnabled(false);
+              } else if (Constants.NODE_TYPE_DIR.equals(treeBind.getModel().getType())) {
+                  addDirMenuItem1.setEnabled(true);
+                  addFileMenuItem.setEnabled(true);
+              }
+          }
       }
-      jTree1.setSelectionPath(path);
-      treeMenu.show(jTree1, e.getX(), e.getY());
-      DefaultMutableTreeNode component = (DefaultMutableTreeNode) path.getLastPathComponent();
-      if(component.isRoot()){
-        delMenuItem.setEnabled(false);
-        addDirMenuItem1.setEnabled(true);
-        addFileMenuItem.setEnabled(true);
-      }else if (component.getUserObject() instanceof PathTreeBind) {
-        PathTreeBind treeBind=(PathTreeBind)component.getUserObject();
-        delMenuItem.setEnabled(true);
-        if(Constants.NODE_TYPE_FILE.equals(treeBind.getModel().getType())){
-          addDirMenuItem1.setEnabled(false);
-          addFileMenuItem.setEnabled(false);
-        }else if(Constants.NODE_TYPE_DIR.equals(treeBind.getModel().getType())){
-          addDirMenuItem1.setEnabled(true);
-          addFileMenuItem.setEnabled(true);
-        }
-      }
-    }
   }//GEN-LAST:event_jTree1MousePressed
 
-  private void jMenu2ActionPerformed(
-      java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu2ActionPerformed
-    CodeGeneratorModule.getInstance(ConfigFrame.class).setVisible(true);
+    private void jMenu2ActionPerformed(
+            java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu2ActionPerformed
+        CodeGeneratorModule.getInstance(ConfigFrame.class).setVisible(true);
   }//GEN-LAST:event_jMenu2ActionPerformed
 
-  private void jMenu2MousePressed(
-      java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu2MousePressed
-    CodeGeneratorModule.getInstance(ConfigFrame.class).setVisible(true);
+    private void jMenu2MousePressed(
+            java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu2MousePressed
+        CodeGeneratorModule.getInstance(ConfigFrame.class).setVisible(true);
   }//GEN-LAST:event_jMenu2MousePressed
 
     private void jMenu3MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu3MousePressed
-       CodeGeneratorModule.getInstance(SelectTableFrame.class).setVisible(true);
+        CodeGeneratorModule.getInstance(SelectTableFrame.class).setVisible(true);
     }//GEN-LAST:event_jMenu3MousePressed
 
     private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
@@ -407,37 +405,37 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenu3ActionPerformed
 
     private void addFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addFileMenuItemActionPerformed
-      addNode(false);
+        addNode(false);
     }//GEN-LAST:event_addFileMenuItemActionPerformed
 
     private void delMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delMenuItemActionPerformed
-      DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-      deleteNode(node);
-      jTree1.updateUI();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        deleteNode(node);
+        jTree1.updateUI();
     }//GEN-LAST:event_delMenuItemActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-      DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-      DefaultMutableTreeNode parent =(DefaultMutableTreeNode)  node.getParent();
-      PathTreeBind treeBind= (PathTreeBind)node.getUserObject();
-      TreeNodeModel model = treeBind.getModel();
-      model.setFileName(fileName.getText());
-      model.setPathName(pathName.getText());
-      model.setTemplate(templateTextArea.getText());
-      model.setProject(pathName.getText());
-      if(parent.isRoot()){
-        childrenFilter(node,n->{
-            PathTreeBind childTreeBind= (PathTreeBind)n.getUserObject();
-            TreeNodeModel childModel = childTreeBind.getModel();
-            childModel.setProject(pathName.getText());
-            return true;
-        });
-      }
-      sqliteDao.saveDO(model);
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+        PathTreeBind treeBind = (PathTreeBind) node.getUserObject();
+        TreeNodeModel model = treeBind.getModel();
+        model.setFileName(fileName.getText());
+        model.setPathName(pathName.getText());
+        model.setTemplate(templateTextArea.getText());
+        model.setProject(pathName.getText());
+        if (parent.isRoot()) {
+            childrenFilter(node, n -> {
+                PathTreeBind childTreeBind = (PathTreeBind) n.getUserObject();
+                TreeNodeModel childModel = childTreeBind.getModel();
+                childModel.setProject(pathName.getText());
+                return true;
+            });
+        }
+        sqliteDao.saveDO(model);
     }//GEN-LAST:event_saveButtonActionPerformed
 
     private void addDirMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDirMenuItem1ActionPerformed
-      addNode(true);
+        addNode(true);
     }//GEN-LAST:event_addDirMenuItem1ActionPerformed
 
     private void pathNameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pathNameFocusLost
@@ -456,15 +454,15 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         DefaultMutableTreeNode source = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
         CopyContext.copy(source);
         pasteMenuItem.setEnabled(true);
-        
+
     }//GEN-LAST:event_copyMenuItemActionPerformed
 
     private void pasteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasteMenuItemActionPerformed
         DefaultMutableTreeNode dist = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-      DefaultMutableTreeNode paste = CopyContext.paste();
+        DefaultMutableTreeNode paste = CopyContext.paste();
         pasteMenuItem.setEnabled(false);
-        if(paste!=null){
-            copyNode(paste,dist);
+        if (paste != null) {
+            copyNode(paste, dist);
             jTree1.updateUI();
         }
     }//GEN-LAST:event_pasteMenuItemActionPerformed
@@ -474,37 +472,35 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void jMenu1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MousePressed
-         checkUpdate(false);
+        checkUpdate(false);
     }//GEN-LAST:event_jMenu1MousePressed
 
-
-  private void addNode(boolean isDir){
-    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-    DefaultMutableTreeNode child=new CheckBoxTreeNode();
-    pathName.setText(isDir?"新建目录":"新建文件");
-    fileName.setText(isDir?"/新建目录":"新建文件");
-    templateTextArea.setText("");
-    templateTextArea.setEnabled(!isDir);
-    TreeNodeModel treeNodeModel = new TreeNodeModel();
-    treeNodeModel.setPathName(pathName.getText());
-    treeNodeModel.setFileName(fileName.getText());
-    treeNodeModel.setType(isDir?Constants.NODE_TYPE_DIR:Constants.NODE_TYPE_FILE);
-    PathTreeBind bind=new PathTreeBind(treeNodeModel,child,parent);
-    if(parent.isRoot()){
-      treeNodeModel.setParentId("0");
-    }else {
-      PathTreeBind parentBind= (PathTreeBind)parent.getUserObject();
-      treeNodeModel.setParentId(parentBind.getModel().getId());
+    private void addNode(boolean isDir) {
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+        DefaultMutableTreeNode child = new CheckBoxTreeNode();
+        pathName.setText(isDir ? "新建目录" : "新建文件");
+        fileName.setText(isDir ? "/新建目录" : "新建文件");
+        templateTextArea.setText("");
+        templateTextArea.setEnabled(!isDir);
+        TreeNodeModel treeNodeModel = new TreeNodeModel();
+        treeNodeModel.setPathName(pathName.getText());
+        treeNodeModel.setFileName(fileName.getText());
+        treeNodeModel.setType(isDir ? Constants.NODE_TYPE_DIR : Constants.NODE_TYPE_FILE);
+        PathTreeBind bind = new PathTreeBind(treeNodeModel, child, parent);
+        if (parent.isRoot()) {
+            treeNodeModel.setParentId("0");
+        } else {
+            PathTreeBind parentBind = (PathTreeBind) parent.getUserObject();
+            treeNodeModel.setParentId(parentBind.getModel().getId());
+        }
+        child.setUserObject(bind);
+        parent.add(child);
+        TreePath parentPath = jTree1.getSelectionPath();
+        jTree1.expandPath(parentPath);
+        jTree1.setSelectionPath(parentPath.pathByAddingChild(child));
+        saveButtonActionPerformed(null);
+        jTree1.updateUI();
     }
-    child.setUserObject(bind);
-    parent.add(child);
-    TreePath parentPath = jTree1.getSelectionPath();
-    jTree1.expandPath(parentPath);
-    jTree1.setSelectionPath(parentPath.pathByAddingChild(child));
-    saveButtonActionPerformed(null);
-    jTree1.updateUI();
-  }
-
 
     public DefaultMutableTreeNode getSelectedProject() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
@@ -517,90 +513,94 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         }
         return node;
     }
+
     /**
      * 加载所有模板文件
      */
-  private void loadAllTemplate() {
-    List<TreeNodeModel> all = sqliteDao.getAll(TreeNodeModel.class);
-    Map<String,TreeNodeModel> idMap=new HashMap();
-    Map<String,List<TreeNodeModel>> parentMap=new HashMap();
-    for(TreeNodeModel treeNodeModel:all){
-      idMap.put(treeNodeModel.getId(),treeNodeModel);
-    }
-    for(TreeNodeModel treeNodeModel:all){
-      List<TreeNodeModel> treeNodeModels = parentMap.get(treeNodeModel.getParentId());
-      if(treeNodeModels==null){
-        treeNodeModels=new ArrayList<>();
-        parentMap.put(treeNodeModel.getParentId(),treeNodeModels);
-      }
-      treeNodeModels.add(treeNodeModel);
-    }
+    private void loadAllTemplate() {
+        List<TreeNodeModel> all = sqliteDao.getAll(TreeNodeModel.class);
+        Map<String, TreeNodeModel> idMap = new HashMap();
+        Map<String, List<TreeNodeModel>> parentMap = new HashMap();
+        for (TreeNodeModel treeNodeModel : all) {
+            idMap.put(treeNodeModel.getId(), treeNodeModel);
+        }
+        for (TreeNodeModel treeNodeModel : all) {
+            List<TreeNodeModel> treeNodeModels = parentMap.get(treeNodeModel.getParentId());
+            if (treeNodeModels == null) {
+                treeNodeModels = new ArrayList<>();
+                parentMap.put(treeNodeModel.getParentId(), treeNodeModels);
+            }
+            treeNodeModels.add(treeNodeModel);
+        }
 
-    DefaultTreeModel model = (DefaultTreeModel) jTree1.getModel();
-    DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-    ROOT = root;
-    if (!root.toString().equals("根目录")) {
-      root = new CheckBoxTreeNode("根目录");
-      ROOT = root;
-      model.setRoot(root);
+        DefaultTreeModel model = (DefaultTreeModel) jTree1.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        ROOT = root;
+        if (!root.toString().equals("根目录")) {
+            root = new CheckBoxTreeNode("根目录");
+            ROOT = root;
+            model.setRoot(root);
+        }
+        addNode(ROOT, "0", parentMap);
     }
-    addNode(ROOT,"0",parentMap);
-  }
 
     /**
      * 添加一个节点
+     *
      * @param node
      * @param nodeId
      * @param parentMap
      */
-  private void addNode(DefaultMutableTreeNode node, String nodeId,
-      Map<String, List<TreeNodeModel>> parentMap) {
-    List<TreeNodeModel> treeNodeModels = parentMap.get(nodeId);
-    if (treeNodeModels != null) {
-      for (TreeNodeModel model : treeNodeModels) {
-        CheckBoxTreeNode child = new CheckBoxTreeNode();
-        PathTreeBind pathTreeBind = new PathTreeBind(model, child,node);
-        child.setUserObject(pathTreeBind);
-        node.add(child);
-        if(node==ROOT){
-            model.setProject(model.getPathName());
-        }else {
-            PathTreeBind parent=(PathTreeBind)node.getUserObject();
-            model.setProject(parent.getModel().getProject());
+    private void addNode(DefaultMutableTreeNode node, String nodeId,
+            Map<String, List<TreeNodeModel>> parentMap) {
+        List<TreeNodeModel> treeNodeModels = parentMap.get(nodeId);
+        if (treeNodeModels != null) {
+            for (TreeNodeModel model : treeNodeModels) {
+                CheckBoxTreeNode child = new CheckBoxTreeNode();
+                PathTreeBind pathTreeBind = new PathTreeBind(model, child, node);
+                child.setUserObject(pathTreeBind);
+                node.add(child);
+                if (node == ROOT) {
+                    model.setProject(model.getPathName());
+                } else {
+                    PathTreeBind parent = (PathTreeBind) node.getUserObject();
+                    model.setProject(parent.getModel().getProject());
+                }
+                addNode(child, model.getId(), parentMap);
+            }
         }
-        addNode(child, model.getId(), parentMap);
-      }
     }
-  }
 
     /**
      * 复制模板或者文件夹
+     *
      * @param sourceNode
      * @param distNode
      */
-  private void copyNode(DefaultMutableTreeNode sourceNode,DefaultMutableTreeNode distNode){
-      PathTreeBind bind = (PathTreeBind)sourceNode.getUserObject();
-      TreeNodeModel copy = ModelUtils.copy(bind.getModel());
-      copy.setId(IDGenerator.SNOW_FLAKE_STRING.generate());
-      if(ROOT==distNode){
-          copy.setParentId("0");
-      }else {
-          copy.setParentId((((PathTreeBind)distNode.getUserObject()).getModel().getId()));
-      }
-      CheckBoxTreeNode child = new CheckBoxTreeNode();
-      PathTreeBind pathTreeBind = new PathTreeBind(copy, child,distNode);
-      child.setUserObject(pathTreeBind);
-      distNode.add(child);
-      sqliteDao.insertDO(copy);
-      int childCount = sourceNode.getChildCount();
-      for(int i=0;i<childCount;i++){
-          DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)sourceNode.getChildAt(i);
-          copyNode(childNode,child);
-      }
-  }
+    private void copyNode(DefaultMutableTreeNode sourceNode, DefaultMutableTreeNode distNode) {
+        PathTreeBind bind = (PathTreeBind) sourceNode.getUserObject();
+        TreeNodeModel copy = ModelUtils.copy(bind.getModel());
+        copy.setId(IDGenerator.SNOW_FLAKE_STRING.generate());
+        if (ROOT == distNode) {
+            copy.setParentId("0");
+        } else {
+            copy.setParentId((((PathTreeBind) distNode.getUserObject()).getModel().getId()));
+        }
+        CheckBoxTreeNode child = new CheckBoxTreeNode();
+        PathTreeBind pathTreeBind = new PathTreeBind(copy, child, distNode);
+        child.setUserObject(pathTreeBind);
+        distNode.add(child);
+        sqliteDao.insertDO(copy);
+        int childCount = sourceNode.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) sourceNode.getChildAt(i);
+            copyNode(childNode, child);
+        }
+    }
 
     /**
      * 获取所有选中的模板节点
+     *
      * @return
      */
     public List<PathTreeBind> getAllSelectedNodes() {
@@ -625,11 +625,12 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
 
     /**
      * 获取当前项目中所有节点
+     *
      * @return
      */
     public List<PathTreeBind> getAllProjectNodes() {
         DefaultMutableTreeNode node = getSelectedProject();
-        if(node==null){
+        if (node == null) {
             return null;
         }
         List<PathTreeBind> list = new ArrayList<>();
@@ -649,13 +650,11 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
         return list;
     }
 
-
-
     private void childrenFilter(DefaultMutableTreeNode node,
             Predicate<DefaultMutableTreeNode> filter) {
         for (int i = 0; i < node.getChildCount(); i++) {
             DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
-            if (filter.test(child)||!child.isLeaf()) {
+            if (filter.test(child) || !child.isLeaf()) {
                 childrenFilter(child, filter);
             }
         }
@@ -663,25 +662,37 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
 
     /**
      * 删除模板文件或者文件夹
+     *
      * @param node
      */
-  private void deleteNode(DefaultMutableTreeNode node){
-      while(node.getChildCount()>0){
-          DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(0);
-          deleteNode(childNode);
-      }
-      PathTreeBind treeBind= (PathTreeBind)node.getUserObject();
-      sqliteDao.deleteOne(TreeNodeModel.class,"id",treeBind.getModel().getId());
-      treeBind.getParent().remove(node);
-  }
+    private void deleteNode(DefaultMutableTreeNode node) {
+        while (node.getChildCount() > 0) {
+            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(0);
+            deleteNode(childNode);
+        }
+        PathTreeBind treeBind = (PathTreeBind) node.getUserObject();
+        sqliteDao.deleteOne(TreeNodeModel.class, "id", treeBind.getModel().getId());
+        treeBind.getParent().remove(node);
+    }
 
     /**
      * 检查更新
+     *
      * @param auto 是否自动触发
      */
     private void checkUpdate(boolean auto) {
         try {
-            VersionDo versionDo = sqliteDao.getAll(VersionDo.class).get(0);
+            if(!SqliteUtil.getBoolProperty(ConfigFactory.REMOTE_DB_CONFIG_ENABLE)){
+                return;
+            }
+            IDbManager remoteManage = ConfigFactory.getRemoteManage();
+            logger.info("当前使用的远程配置中心地址为：{}", remoteManage.getDefaultDbConfig().getUrl());
+            List<VersionDo> all = sqliteDao.getAll(VersionDo.class, remoteManage);
+            if (CollectionUtils.isEmpty(all)) {
+                logger.info("当前没有更新数据，忽略");
+                return;
+            }
+            VersionDo versionDo = all.get(0);
             boolean update = !Objects.equals(versionDo.getVersion(), ConfigFactory.getCurrentVersion());
             if (!update) {
                 if (!auto) {
@@ -694,7 +705,7 @@ public class CodeGenUIFrame extends javax.swing.JFrame {
                 if (Objects.equals(JOptionPane.YES_OPTION, option)) {
                     try {
                         String oldVersionFile = DownloadUtils.downloadNewVersion(versionDo.getHttpPath(), versionDo.getLocalPath());
-                        Runtime.getRuntime().exec("java -jar "+versionDo.getLocalPath() +" \""+oldVersionFile+"\"");
+                        Runtime.getRuntime().exec("java -jar " + versionDo.getLocalPath() + " \"" + oldVersionFile + "\"");
                         System.exit(0);
                     } catch (Throwable e) {
                         logger.info("更新出错", e);

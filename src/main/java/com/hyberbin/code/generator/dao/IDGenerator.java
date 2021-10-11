@@ -15,9 +15,7 @@
  *  * limitations under the License.
  *
  */
-
 package com.hyberbin.code.generator.dao;
-
 
 import com.hyberbin.code.generator.utils.RandomUtil;
 import java.math.BigInteger;
@@ -32,53 +30,54 @@ import java.security.NoSuchAlgorithmException;
  */
 @FunctionalInterface
 public interface IDGenerator<T> {
-  T generate();
 
-  /**
-   * 空ID生成器
-   */
-  IDGenerator<?> NULL = () -> null;
+    T generate();
 
-  @SuppressWarnings("unchecked")
-  static <T> IDGenerator<T> getNullGenerator() {
-    return (IDGenerator) NULL;
-  }
+    /**
+     * 空ID生成器
+     */
+    IDGenerator<?> NULL = () -> null;
 
-  /**
-   * 使用UUID生成id
-   */
-  IDGenerator<String> UUID = () -> java.util.UUID.randomUUID().toString();
-
-  /**
-   * 随机字符
-   */
-  IDGenerator<String> RANDOM = RandomUtil::randomChar;
-
-  /**
-   * md5(uuid()+random())
-   */
-  IDGenerator<String> MD5 = () -> {
-    try {
-      MessageDigest md = MessageDigest.getInstance("MD5");
-      md.update(UUID.generate().concat(RandomUtil.randomChar()).getBytes());
-      return new BigInteger(1, md.digest()).toString(16);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
+    @SuppressWarnings("unchecked")
+    static <T> IDGenerator<T> getNullGenerator() {
+        return (IDGenerator) NULL;
     }
-  };
 
-  /**
-   * 雪花算法
-   */
-  IDGenerator<Long> SNOW_FLAKE = SnowflakeIdGenerator.getInstance()::nextId;
+    /**
+     * 使用UUID生成id
+     */
+    IDGenerator<String> UUID = () -> java.util.UUID.randomUUID().toString();
 
-  /**
-   * 雪花算法转String
-   */
-  IDGenerator<String> SNOW_FLAKE_STRING = () -> String.valueOf(SNOW_FLAKE.generate());
+    /**
+     * 随机字符
+     */
+    IDGenerator<String> RANDOM = RandomUtil::randomChar;
 
-  /**
-   * 雪花算法的16进制
-   */
-  IDGenerator<String> SNOW_FLAKE_HEX = () -> Long.toHexString(SNOW_FLAKE.generate());
+    /**
+     * md5(uuid()+random())
+     */
+    IDGenerator<String> MD5 = () -> {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(UUID.generate().concat(RandomUtil.randomChar()).getBytes());
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    };
+
+    /**
+     * 雪花算法
+     */
+    IDGenerator<Long> SNOW_FLAKE = SnowflakeIdGenerator.getInstance()::nextId;
+
+    /**
+     * 雪花算法转String
+     */
+    IDGenerator<String> SNOW_FLAKE_STRING = () -> String.valueOf(SNOW_FLAKE.generate());
+
+    /**
+     * 雪花算法的16进制
+     */
+    IDGenerator<String> SNOW_FLAKE_HEX = () -> Long.toHexString(SNOW_FLAKE.generate());
 }

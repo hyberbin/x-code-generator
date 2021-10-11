@@ -4,15 +4,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class CopyContext {
 
-    public static DefaultMutableTreeNode copy=null;
+    public static DefaultMutableTreeNode copy = null;
 
-    public static void copy(DefaultMutableTreeNode copy){
-        CopyContext.copy=copy;
+    public static void copy(DefaultMutableTreeNode copy) {
+        CopyContext.copy = copy;
     }
 
-    public static DefaultMutableTreeNode paste(){
-        DefaultMutableTreeNode paste=copy;
-        copy=null;
+    public static DefaultMutableTreeNode paste() {
+        DefaultMutableTreeNode paste = copy;
+        copy = null;
         return paste;
     }
 }

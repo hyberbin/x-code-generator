@@ -7,7 +7,7 @@ x-code-generator 是一个根据数据库表结构自动生成代码的工具，
 
 下载dist目录下面的文件
 /XCodeGenerator-1.0-SNAPSHOT.jar
-/lib/*
+
 
 java -jar XCodeGenerator-1.0-SNAPSHOT.jar 即可运行
 

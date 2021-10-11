@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static final StringUtils INSTANCE = new StringUtils();
-    private static final Set<String> INNER_VARS=new HashSet<>(Arrays.asList("classModelMeta,field,tool".split(",")));
+    private static final Set<String> INNER_VARS = new HashSet<>(Arrays.asList("classModelMeta,field,tool".split(",")));
 
     private StringUtils() {
     }
@@ -67,6 +67,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     /**
      * 获取普通文件中${xxx}的变量名
+     *
      * @param fileContent
      * @return
      */
@@ -76,9 +77,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         Set<String> vars = new HashSet<>();
         while (matcher.find()) {
             String match = matcher.group(1);
-            String var=match.split("[.]")[0];
-            if(!INNER_VARS.contains(var)){
-              vars.add(var);
+            String var = match.split("[.]")[0];
+            if (!INNER_VARS.contains(var)) {
+                vars.add(var);
             }
         }
         return vars;
@@ -86,15 +87,16 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     /**
      * 获取文件是带指定关键字行中的变量，用于排除<version>${project.version}</version>之类的
+     *
      * @param content
      * @param keys 需要获取的标签名
      * @return
      */
-    public static Set<String> getKeyVars(String content,String... keys){
-        String regx=".*("+String.join("|",keys)+").*";
-        StringBuilder fileContent=new StringBuilder();
-        Arrays.stream(content.split("\n")).forEach(l->{
-            if(l.matches(regx)){
+    public static Set<String> getKeyVars(String content, String... keys) {
+        String regx = ".*(" + String.join("|", keys) + ").*";
+        StringBuilder fileContent = new StringBuilder();
+        Arrays.stream(content.split("\n")).forEach(l -> {
+            if (l.matches(regx)) {
                 fileContent.append(l).append("\n");
             }
         });

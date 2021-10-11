@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public abstract class BaseDo {
-  private String id;
+
+    private String id;
 }

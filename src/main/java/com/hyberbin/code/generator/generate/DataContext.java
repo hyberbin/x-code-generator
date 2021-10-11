@@ -10,8 +10,8 @@ import lombok.Data;
 @Data
 public class DataContext {
 
-  private ClassModelMeta classModelMeta;
-  private List<? extends FieldMeta> fieldMetas;
-  private List<PathTreeBind> templates;
-  private String selectedEnv;
+    private ClassModelMeta classModelMeta;
+    private List<? extends FieldMeta> fieldMetas;
+    private List<PathTreeBind> templates;
+    private String selectedEnv;
 }

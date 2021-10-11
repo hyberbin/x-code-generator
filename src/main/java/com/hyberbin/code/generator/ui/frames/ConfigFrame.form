@@ -105,10 +105,23 @@
                               </Group>
                               <Group type="102" attributes="0">
                                   <Component id="useLocalVars" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="32767" attributes="0"/>
-                                  <Component id="jButton3" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                                  <Component id="jButton2" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                          <Component id="validateButton" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Component id="refreshButton" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Component id="jButton3" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                                          <Component id="jButton2" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="enableRemoteConfig" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -141,11 +154,16 @@
                               <Component id="jPasswordField1" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="useLocalVars" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="useLocalVars" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="enableRemoteConfig" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jButton2" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jButton3" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="refreshButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="validateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace pref="71" max="32767" attributes="0"/>
                       </Group>
@@ -226,6 +244,27 @@
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="&#x4f7f;&#x7528;&#x672c;&#x5730;&#x53d8;&#x91cf;"/>
                   </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="enableRemoteConfig">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="&#x542f;&#x7528;&#x8fdc;&#x7a0b;&#x914d;&#x7f6e;&#x4e2d;&#x5fc3;"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="refreshButton">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="&#x5237;&#x65b0;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshButtonActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="validateButton">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="&#x9a8c;&#x8bc1;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="validateButtonActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>
