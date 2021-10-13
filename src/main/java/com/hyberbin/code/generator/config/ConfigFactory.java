@@ -3,6 +3,7 @@ package com.hyberbin.code.generator.config;
 import com.hyberbin.code.generator.dao.SqliteDao;
 import com.hyberbin.code.generator.domains.DataSource;
 import com.hyberbin.code.generator.domains.DataTypeDo;
+import org.apache.commons.lang3.StringUtils;
 import org.jplus.hyb.database.config.DbConfig;
 import org.jplus.hyb.database.config.SimpleConfigurator;
 import org.jplus.hyb.database.sqlite.SqliteUtil;
@@ -11,7 +12,6 @@ import org.jplus.hyb.database.transaction.SimpleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +39,7 @@ public class ConfigFactory {
         }
         SqliteDao sqliteDao = CodeGeneratorModule.getInstance(SqliteDao.class);
         DataSource remoteDatasource = sqliteDao.getOne(DataSource.class, "datasource", REMOTE_DB_CONFIG_NAME, SQLITE_MANAGER);
-        if (remoteDatasource == null) {
+        if (remoteDatasource == null || StringUtils.isBlank(remoteDatasource.getDatasource())) {
             remoteDatasource = new DataSource();
             remoteDatasource.setDatasource(REMOTE_DB_CONFIG_NAME);
             remoteDatasource.setUrl(DbConfig.getMysqlUrl("127.0.0.1", "x-generator"));
